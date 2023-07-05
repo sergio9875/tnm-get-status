@@ -1,0 +1,33 @@
+secrets:
+  main: arn:aws:secretsmanager:eu-west-1:427246389222:secret:configuration/dpo/callback/config-8PRbdm
+  db_process: arn:aws:secretsmanager:eu-west-1:427246389222:secret:configuration/process/database-1si9yj
+  db_africainv: arn:aws:secretsmanager:eu-west-1:427246389222:secret:dev/dpo/africainv-kv8Bbz
+  cache: arn:aws:secretsmanager:eu-west-1:427246389222:secret:configuration/dpo/mno/callback/cache-6h702K
+  dpo_services: arn:aws:secretsmanager:eu-west-1:427246389222:secret:dev/dpo/services-rP8QsX
+
+environment_variables:
+  secret_name: configuration/dpo/callback/config
+
+policies:
+  dpoServices: arn:aws:iam::427246389222:policy/Application_Services_Policy
+
+queues:
+  dpo_mail_sender: arn:aws:sqs:eu-west-1:427246389222:dpo-mail-sender
+  mgmt_email_sender: arn:aws:sqs:eu-west-1:427246389222:mgmt-email-sender
+
+# VPC pg.dev.local
+vpc:
+  securityGroupIds:
+    # dpo-lambda-sg
+    - sg-0ee0f318f47d74b8f
+    # lambda-rds-sg
+    - sg-046f97274edf29070
+    # dpo-lambda-redis-access
+    - sg-05eed4cccc990747f
+  subnetIds:
+    # eu-west-1c, priv-1c
+    - subnet-57dfd833
+    # eu-west-1a, priv-1a
+    - subnet-b18cb6c7
+    # eu-west-1b, priv-1b
+    - subnet-b61b58ee

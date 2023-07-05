@@ -1,0 +1,107 @@
+service: malawi-get-status
+frameworkVersion: ^3.3.0
+configValidationMode: error
+
+custom:
+  functionName: ${self:service}
+  mainSecretName: ${file(./.deploy/config/${aws:accountId, '427246389222'}.yaml):environment_variables.secret_name}
+
+provider:
+  name: aws
+  region: eu-west-1
+  stackName: ${self:custom.functionName}
+  deploymentBucket:
+    name: com.serverless.${self:provider.region}.${aws:accountId, '427246389222'}.dpo.deploys
+    blockPublicAccess: true
+  deploymentPrefix: dpoafrica/mno/lambda
+  iam:
+    role:
+      managedPolicies:
+        - ${file(./.deploy/config/${aws:accountId, '427246389222'}.yaml):policies.dpoServices}
+      statements:
+        - Effect: "Allow"
+          Action:
+            - "secretsmanager:GetSecretValue"
+          Resource:
+            - ${file(./.deploy/config/${aws:accountId, '427246389222'}.yaml):secrets.main}
+            - ${file(./.deploy/config/${aws:accountId, '427246389222'}.yaml):secrets.db_process}
+            - ${file(./.deploy/config/${aws:accountId, '427246389222'}.yaml):secrets.db_africainv}
+            - ${file(./.deploy/config/${aws:accountId, '427246389222'}.yaml):secrets.cache}
+            - ${file(./.deploy/config/${aws:accountId, '427246389222'}.yaml):secrets.dpo_services}
+        - Effect: "Allow"
+          Action:
+            - "sqs:GetQueueUrl"
+            - "sqs:SendMessage"
+            - "sqs:GetQueueAttributes"
+          Resource:
+            - { 'Fn::GetAtt': [ MainQueue, Arn ] }
+            - ${file(./.deploy/config/${aws:accountId, '427246389222'}.yaml):queues.dpo_mail_sender}
+            - ${file(./.deploy/config/${aws:accountId, '427246389222'}.yaml):queues.mgmt_email_sender}
+        - Effect: "Allow"
+          Action:
+            - "sqs:DeleteMessage"
+            - "sqs:ReceiveMessage"
+          Resource:
+            - { 'Fn::GetAtt': [ MainQueue, Arn ] }
+
+package:
+  patterns:
+    - "!.serverless"
+    - "!.deploy"
+    - "!.idea"
+    - "!cache"
+    - "!enums"
+    - "!logger"
+    - "!models"
+    - "!process"
+    - "!repository"
+    - "!request"
+    - "!utils"
+    - "README.md"
+    - "!sonar-project.properties"
+    - "!ascii.txt"
+    - "!go.*"
+    - "!*.go"
+    - "!appspec.yml"
+    - "!serverless.yml"
+    - "!.gitlab-ci.yml"
+    - "!.gitignore"
+    - "!docker-compose.yml"
+    - "!Dockerfile"
+    - ${self:custom.functionName}
+
+functions:
+  MainFunction:
+    handler: ${self:custom.functionName}
+    name: ${self:custom.functionName}
+    description: Tnm Malawi check status
+    runtime: go1.x
+    architecture: x86_64
+    memorySize: 128
+    timeout: 30
+    tags:
+      Stack: dpo-callback-process
+    environment:
+      LOG_LEVEL: DEBUG
+      SECRET_NAME: ${self:custom.mainSecretName}
+    vpc: ${file(./.deploy/config/${aws:accountId, '427246389222'}.yaml):vpc}
+    events:
+      - sqs:
+          arn: { 'Fn::GetAtt': [ MainQueue, Arn ] }
+          batchSize: 1
+          maximumBatchingWindow: 0
+
+resources:
+  Description: Built via Pipeline ID ${env:CI_PIPELINE_IID} on ${env:CI_COMMIT_BRANCH} for commit ${env:CI_COMMIT_SHORT_SHA} by ${env:CI_COMMIT_AUTHOR}
+  Resources:
+    MainQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: ${self:custom.functionName}
+        RedrivePolicy:
+          deadLetterTargetArn: { 'Fn::GetAtt': [ DeadLetterQueue, Arn ] }
+          maxReceiveCount: 1
+    DeadLetterQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${self:custom.functionName}-dlq

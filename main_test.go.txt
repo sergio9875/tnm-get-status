@@ -1,0 +1,69 @@
+package main
+
+import (
+	"context"
+	"os"
+	"testing"
+
+	"github.com/aws/aws-lambda-go/events"
+)
+
+func TestLambdaHandler(t *testing.T) {
+	err := os.Setenv("AWS_REGION", "eu-west-1")
+	if err != nil {
+		return
+	}
+	err = os.Setenv("SECRET_NAME", "configuration/dpo/callback/config")
+	if err != nil {
+		return
+	}
+	type args struct {
+		ctx      context.Context
+		sqsEvent events.SQSEvent
+	}
+	var tests = []struct {
+		name    string
+		args    args
+		want    bool
+		wantErr bool
+	}{
+		{
+			name: "Integration Test",
+			args: args{
+				ctx: context.TODO(),
+				sqsEvent: events.SQSEvent{Records: []events.SQSMessage{
+					{
+						MessageId: "24234",
+						Body: `{
+						"url": "https://mpgs.pgcoza.biz",
+						"apiKey": "P2VMJ8MsahSgFdz9",
+						"apiSecret": "CpaLPFDjjj5Zh3QRh7Psewwk",
+						"acquireRoute": "acquire.tnm-malawi",
+						"action":"Query",
+						"urlQuery": "https://openapiuat.tnmmpamba.co.mw/api/CheckB2CTransaction",
+						"tranType": 2,
+						"originalTransId": "500956_1348855",
+						"transId": "4972506",
+						"transrId": "54686",
+						"amount": "2"
+					}`,
+						ReceiptHandle: "Handle",
+					},
+				}},
+			},
+			want:    true,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		if os.Getenv("SKIP_MAIN") == "" {
+			t.Run(tt.name, func(t *testing.T) {
+				err := LambdaHandler(tt.args.ctx, tt.args.sqsEvent)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("LambdaHandler() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
+			})
+		}
+	}
+}

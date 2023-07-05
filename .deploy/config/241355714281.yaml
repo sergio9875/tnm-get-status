@@ -1,0 +1,29 @@
+secrets:
+  main: arn:aws:secretsmanager:eu-west-1:241355714281:secret:configuration/mno/callback/config-p8mCUd
+  db_process: arn:aws:secretsmanager:eu-west-1:241355714281:secret:configuration/process/database-IVw75Q
+  db_africainv: arn:aws:secretsmanager:eu-west-1:241355714281:secret:prd/db/africainv-U3bB00
+  cache: arn:aws:secretsmanager:eu-west-1:241355714281:secret:configuration/dpo/mno/callback/cache-3DztMH
+  dpo_services: arn:aws:secretsmanager:eu-west-1:241355714281:secret:prd/dpo/services-XgZ1kE
+
+environment_variables:
+  secret_name: configuration/mno/callback/config
+
+policies:
+  dpoServices: arn:aws:iam::241355714281:policy/sumo-pusher
+
+queues:
+  dpo_mail_sender: arn:aws:sqs:eu-west-1:241355714281:dpo-mail-sender-queue
+  mgmt_email_sender: arn:aws:sqs:eu-west-1:241355714281:mail-sender
+
+# VPC 3G-Prod
+vpc:
+  securityGroupIds:
+    # process-lambda
+    - sg-09e0a792f3222fa84
+  subnetIds:
+    # eu-west-1c, priv-1c
+    - subnet-839293e7
+    # eu-west-1a, priv-1a
+    - subnet-9d3631eb
+    # eu-west-1b, priv-1b
+    - subnet-865d10de
