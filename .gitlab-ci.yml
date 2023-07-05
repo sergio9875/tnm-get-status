@@ -3,15 +3,8 @@ include:
     ref: main
     file: '/serverless.golang.yaml'
 
-deploy:prod:
-  variables:
-    ENVIRONMENT: prod
-    AWS_PROFILE: onz
-  environment:
-    name: production
-  only:
-    - main
+deploy:dev:
 
-list prod deploys:
-  variables:
-    AWS_PROFILE: onz
+  only:
+    - initial
+
