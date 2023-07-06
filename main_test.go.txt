@@ -42,10 +42,10 @@ func TestLambdaHandler(t *testing.T) {
 						"action":"Query",
 						"urlQuery": "https://openapiuat.tnmmpamba.co.mw/api/CheckB2CTransaction",
 						"tranType": 2,
-						"originalTransId": "500956_1348855",
-						"transId": "4972506",
-						"transrId": "54686",
-						"amount": "2"
+						"originalTransId": "500956_1349321",
+						"transId": "4974255",
+						"transrId": "54891",
+						"amount": "110"
 					}`,
 						ReceiptHandle: "Handle",
 					},
