@@ -17,14 +17,14 @@ type SumoPayload struct {
 }
 
 type IncomingRequest struct {
-	Url             string `json:"url,omitempty"`
+	Url             string `json:"url" redact:"complete"`
 	ApiKey          string `json:"apiKey" redact:"complete"`
 	ApiSecret       string `json:"apiSecret" redact:"complete"`
-	AcquireRoute    string `json:"acquireRoute,omitempty"`
-	Action          string `json:"action,omitempty"`
-	UrlQuery        string `json:"urlQuery,omitempty"`
-	TranType        int    `json:"tranType,omitempty"`
-	OriginalTransId string `json:"originalTransId,omitempty"`
+	AcquireRoute    string `json:"acquireRoute"`
+	Action          string `json:"action" validate:"required"`
+	UrlQuery        string `json:"urlQuery" redact:"complete"`
+	TranType        int    `json:"tranType"`
+	OriginalTransId string `json:"originalTransId" redact:"complete"`
 	TransId         string `json:"transId,omitempty"`
 	TransrId        string `json:"transrId,omitempty"`
 	Amount          string `json:"amount,omitempty"`
@@ -37,23 +37,23 @@ type Response struct {
 }
 type RouteParams struct {
 	Action          string `json:"Action"`
-	UrlQuery        string `json:"UrlQuery"`
+	UrlQuery        string `json:"UrlQuery" redact:"complete"`
 	TranType        int    `json:"TranType"`
-	OriginalTransId string `json:"OriginalTransId"`
+	OriginalTransId string `json:"OriginalTransId" redact:"complete"`
 }
 
 type QueryStatus struct {
 	ApiKey       string      `json:"apiKey" redact:"complete"`
 	ApiSecret    string      `json:"apiSecret" redact:"complete"`
-	AcquireRoute string      `json:"acquireRoute,omitempty"`
-	RouteParams  RouteParams `json:"routeParams,omitempty"`
+	AcquireRoute string      `json:"acquireRoute" redact:"complete"`
+	RouteParams  RouteParams `json:"routeParams"`
 }
 
 type ResponseBody struct {
-	ConversationId    string `json:"ConversationId,omitempty"`
-	ResponseTime      string `json:"ResponseTime,omitempty"`
-	TransId           string `json:"TransId,omitempty"`
-	OriginalTransId   string `json:"OriginalTransId,omitempty"`
-	ResultCode        string `json:"ResultCode,omitempty"`
-	ResultDescription string `json:"ResultDescription,omitempty"`
+	ConversationId    string `json:"ConversationId"`
+	ResponseTime      string `json:"ResponseTime"`
+	TransId           string `json:"TransId"`
+	OriginalTransId   string `json:"OriginalTransId"`
+	ResultCode        string `json:"ResultCode"`
+	ResultDescription string `json:"ResultDescription"`
 }

@@ -119,15 +119,12 @@ func (c *Controller) Process(ctx context.Context, message events.SQSMessage) err
 	}
 
 	MalawiRequest := c.mapTnmMalawiRequest(msgBody)
-	headers := make(map[string]string, 0)
-	url := "https://mpgs.pgcoza.biz"
-	fmt.Println(url)
 
 	log.Infof(*c.requestId, "trying to send request to payment gateway",
-		MalawiRequest, "to:", url)
+		MalawiRequest, "to:", msgBody.Url)
 
 	// send Query getStatus to the Malawi.
-	if err := (*c.httpClient).PostWithJsonResponse(url, headers, MalawiRequest, mtnResponse); err != nil {
+	if err := (*c.httpClient).PostWithJsonResponse(msgBody.Url, make(map[string]string, 0), MalawiRequest, mtnResponse); err != nil {
 		return err
 	}
 
@@ -137,7 +134,7 @@ func (c *Controller) Process(ctx context.Context, message events.SQSMessage) err
 		log.Error(*c.requestId, "___ERROR___ : Can't Read Response From Malawi ", err.Error())
 		return err
 	}
-	log.Infof(*c.requestId, "RES FROM MALAWI %v", mtnResponseBody)
+	log.Infof(*c.requestId, "RESPONSE_FROM_MALAWI %v", mtnResponseBody)
 
 	if mtnResponseBody.ResultCode == enums.StatusCode {
 
@@ -165,7 +162,6 @@ func (c *Controller) sendSumoMessages(ctx context.Context, message string, param
 			Params:  params,
 		},
 	}
-	log.Info(*c.requestId, "Sumo Params : ", sumo.SumoPayload.Params)
 	messageBody, err := json.Marshal(sumo)
 	if err != nil {
 		log.Error(*c.requestId, "Error Create Message Body For SQS: ", err.Error())
