@@ -120,17 +120,12 @@ func (c *Controller) Process(ctx context.Context, message events.SQSMessage) err
 
 	MalawiRequest := c.mapTnmMalawiRequest(msgBody)
 
-	log.Infof(*c.requestId, "trying to send request to payment gateway", MalawiRequest)
-
-	fmt.Println("URL", msgBody.Url)
-	log.Info("URL+", msgBody.Url)
+	log.Infof(*c.requestId, "trying to send request", MalawiRequest)
 
 	// send Query getStatus to the Malawi.
 	if err := (*c.httpClient).PostWithJsonResponse(msgBody.Url, make(map[string]string, 0), MalawiRequest, mtnResponse); err != nil {
 		return err
 	}
-
-	log.Infof(*c.requestId, "successfully retrieved payment gateway response %v", mtnResponse)
 
 	if err = json.Unmarshal([]byte(mtnResponse.ResponseBody), mtnResponseBody); err != nil {
 		log.Error(*c.requestId, "___ERROR___ : Can't Read Response From Malawi ", err.Error())
@@ -186,7 +181,6 @@ func (c *Controller) sendSumoMessages(ctx context.Context, message string, param
 
 func (c *Controller) getMessage(message string, messageData interface{}) error {
 
-	log.Info(*c.requestId, "trying to retrieve message body from message: ", message)
 	if err := json.Unmarshal([]byte(message), &messageData); err != nil {
 		log.Error(*c.requestId, "unable to retrieve message body: ", err.Error())
 		return err

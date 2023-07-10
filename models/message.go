@@ -17,7 +17,7 @@ type SumoPayload struct {
 }
 
 type IncomingRequest struct {
-	Url             string `json:"url"`
+	Url             string `json:"url" redact:"complete"`
 	ApiKey          string `json:"apiKey" redact:"complete"`
 	ApiSecret       string `json:"apiSecret" redact:"complete"`
 	AcquireRoute    string `json:"acquireRoute"`
