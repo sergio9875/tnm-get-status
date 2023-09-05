@@ -110,6 +110,7 @@ func (c *Controller) PostProcess() {
 }
 
 func (c *Controller) Process(ctx context.Context, message events.SQSMessage) error {
+	log.Info("START PROCESS")
 	//c.sendSumoMessages(ctx, "start tnm-malawi get callback process", message)
 
 	var err error
@@ -123,7 +124,7 @@ func (c *Controller) Process(ctx context.Context, message events.SQSMessage) err
 	//	return err
 	//}
 
-	log.Info("URL", msgBody)
+	//log.Info("URL", msgBody)
 
 	type Post struct {
 		Message string   `json:"message"`
@@ -166,8 +167,9 @@ func (c *Controller) Process(ctx context.Context, message events.SQSMessage) err
 	fmt.Println("response Status:", resp.Status)
 	fmt.Println("response Headers:", resp.Header)
 	body, _ := io.ReadAll(resp.Body)
+	log.Println("response Body:", body)
 	fmt.Println("response Body:", string(body))
-
+	log.Info("END PROCESS")
 	os.Exit(2)
 	MalawiRequest := c.mapTnmMalawiRequest(msgBody)
 
