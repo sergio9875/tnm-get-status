@@ -1,14 +1,18 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"crypto/tls"
+	"fmt"
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/google/uuid"
+	"io"
 	log "malawi-getstatus/logger"
 	"malawi-getstatus/process"
 	"malawi-getstatus/utils"
+	"net/http"
 	"os"
 )
 
@@ -51,6 +55,37 @@ func LambdaHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
 }
 
 func main() {
+	log.Info("START PROCESS")
 
-	lambda.Start(LambdaHandler)
+	// JSON body
+	body1 := []byte(`{
+    "wallet": "500957",
+    "password" : "Test_Test_42"
+	}`)
+
+	url := "https://dev.payouts.tnmmpamba.co.mw/api/authenticate"
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body1))
+	req.Header.Set("X-Custom-Header", "myvalue")
+	req.Header.Set("Content-Type", "application/json")
+
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
+	client := &http.Client{Transport: tr}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	fmt.Println("response Status:", resp.Status)
+	fmt.Println("response Headers:", resp.Header)
+	body, _ := io.ReadAll(resp.Body)
+	log.Println("response Body:", body)
+	fmt.Println("response Body:", string(body))
+
+	log.Info("END PROCESS")
+
+	//lambda.Start(LambdaHandler)
 }

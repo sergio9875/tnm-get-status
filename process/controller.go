@@ -1,15 +1,12 @@
 package process
 
 import (
-	"bytes"
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
-	"io"
 	"malawi-getstatus/enums"
 	log "malawi-getstatus/logger"
 	"malawi-getstatus/models"
@@ -17,7 +14,6 @@ import (
 	"malawi-getstatus/repository/mssql"
 	"malawi-getstatus/request"
 	"malawi-getstatus/utils"
-	"net/http"
 	"os"
 )
 
@@ -110,7 +106,7 @@ func (c *Controller) PostProcess() {
 }
 
 func (c *Controller) Process(ctx context.Context, message events.SQSMessage) error {
-	log.Info("START PROCESS")
+
 	//c.sendSumoMessages(ctx, "start tnm-malawi get callback process", message)
 
 	var err error
@@ -135,13 +131,6 @@ func (c *Controller) Process(ctx context.Context, message events.SQSMessage) err
 	// HTTP endpoint
 	//posturl := "https://jsonplaceholder.typicode.com/posts"
 
-	// JSON body
-	body1 := []byte(`{
-    "wallet": "500957",
-    "password" : "Test_Test_42"
-	}`)
-
-	url := "https://dev.payouts.tnmmpamba.co.mw/api/authenticate"
 	// Create a HTTP post request
 	//r, err := http.NewRequest("POST", msgBody.UrlQuery, bytes.NewBuffer(body))
 	//if err != nil {
@@ -149,27 +138,7 @@ func (c *Controller) Process(ctx context.Context, message events.SQSMessage) err
 	//}
 	//
 	//r.Header.Add("Content-Type", "application/json")
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body1))
-	req.Header.Set("X-Custom-Header", "myvalue")
-	req.Header.Set("Content-Type", "application/json")
 
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-
-	client := &http.Client{Transport: tr}
-	resp, err := client.Do(req)
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
-
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
-	body, _ := io.ReadAll(resp.Body)
-	log.Println("response Body:", body)
-	fmt.Println("response Body:", string(body))
-	log.Info("END PROCESS")
 	os.Exit(2)
 	MalawiRequest := c.mapTnmMalawiRequest(msgBody)
 
