@@ -34,21 +34,19 @@ func TestLambdaHandler(t *testing.T) {
 				sqsEvent: events.SQSEvent{Records: []events.SQSMessage{
 					{
 						MessageId: "24234",
-						Body:      "",
-						//		`{
-						//	"url": "https://mpgs.pgcoza.biz",
-						//	"apiKey": "P2VMJ8MsahSgFdz9",
-						//	"apiSecret": "CpaLPFDjjj5Zh3QRh7Psewwk",
-						//	"acquireRoute": "acquire.tnm-malawi",
-						//	"action":"Query",
-						//	"urlQuery": "https://dev.payouts.tnmmpamba.co.mw/api/authenticate",
-						//	"tranType": 2,
-						//	"originalTransId": "500956_1349321",
-						//	"transId": "4974255",
-						//	"transrId": "54891",
-						//	"amount": "110"
-						//}`
-
+						Body: `{
+						"url": "https://mpgs.pgcoza.biz",
+						"apiKey": "P2VMJ8MsahSgFdz9",
+						"apiSecret": "CpaLPFDjjj5Zh3QRh7Psewwk",
+						"acquireRoute": "acquire.tnm-malawi",
+						"action":"Query",
+						"urlQuery": "https://dev.payouts.tnmmpamba.co.mw/api/authenticate",
+						"tranType": 2,
+						"originalTransId": "500956_1349321",
+						"transId": "4974255",
+						"transrId": "54891",
+						"amount": "110"
+					}`,
 						ReceiptHandle: "Handle",
 					},
 				}},

@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/google/uuid"
 	"io"
@@ -30,31 +31,7 @@ func init() {
 
 // LambdaHandler - Listen to S3 events and start processing
 func LambdaHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
-	log.Debug("ROOT", "version: <GIT_HASH>")
 
-	if invokeCount == 0 {
-		Init()
-	}
-
-	invokeCount = invokeCount + 1
-	if invokeCount > *utils.SafeAtoi(utils.Getenv("MAX_INVOKE", "15"), aws.Int(15)) {
-		// reset global variables to nil
-		controller.ShutDown()
-		Init()
-	}
-
-	for _, record := range sqsEvent.Records {
-		controller.PreProcess(utils.StringPtr(uuid.New().String()))
-		if err := controller.Process(ctx, record); err != nil {
-			return err
-		}
-		controller.PostProcess()
-	}
-
-	return nil
-}
-
-func main() {
 	log.Info("START PROCESS")
 
 	// JSON body
@@ -87,5 +64,30 @@ func main() {
 
 	log.Info("END PROCESS")
 
-	//lambda.Start(LambdaHandler)
+	log.Debug("ROOT", "version: <GIT_HASH>")
+
+	if invokeCount == 0 {
+		Init()
+	}
+
+	invokeCount = invokeCount + 1
+	if invokeCount > *utils.SafeAtoi(utils.Getenv("MAX_INVOKE", "15"), aws.Int(15)) {
+		// reset global variables to nil
+		controller.ShutDown()
+		Init()
+	}
+
+	for _, record := range sqsEvent.Records {
+		controller.PreProcess(utils.StringPtr(uuid.New().String()))
+		if err := controller.Process(ctx, record); err != nil {
+			return err
+		}
+		controller.PostProcess()
+	}
+
+	return nil
+}
+
+func main() {
+	lambda.Start(LambdaHandler)
 }
