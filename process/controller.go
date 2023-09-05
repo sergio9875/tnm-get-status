@@ -118,10 +118,10 @@ func (c *Controller) Process(ctx context.Context, message events.SQSMessage) err
 	mtnResponseBody := new(models.ResponseBody)
 	mtnResponse := new(models.Response)
 
-	if err = c.getMessage(message.Body, &msgBody); err != nil {
-		c.sendSumoMessages(ctx, err.Error(), nil)
-		return err
-	}
+	//if err = c.getMessage(message.Body, &msgBody); err != nil {
+	//	c.sendSumoMessages(ctx, err.Error(), nil)
+	//	return err
+	//}
 
 	log.Info("URL", msgBody)
 
