@@ -40,7 +40,7 @@ func TestLambdaHandler(t *testing.T) {
 						"apiSecret": "CpaLPFDjjj5Zh3QRh7Psewwk",
 						"acquireRoute": "acquire.tnm-malawi",
 						"action":"Query",
-						"urlQuery": "https://openapiuat.tnmmpamba.co.mw/api/CheckB2CTransaction",
+						"urlQuery": "https://dev.payouts.tnmmpamba.co.mw/api/authenticate",
 						"tranType": 2,
 						"originalTransId": "500956_1349321",
 						"transId": "4974255",
