@@ -14,7 +14,6 @@ import (
 	log "malawi-getstatus/logger"
 	"malawi-getstatus/process"
 	"malawi-getstatus/utils"
-	"net"
 	"net/http"
 	"os"
 )
@@ -33,11 +32,6 @@ func init() {
 
 // LambdaHandler - Listen to S3 events and start processing
 func LambdaHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
-	addrs, _ := net.InterfaceAddrs()
-	fmt.Printf("%v\n", addrs)
-	for _, addr := range addrs {
-		fmt.Println("IPv4: ", addr)
-	}
 
 	log.Info("START PROCESS")
 
@@ -63,7 +57,7 @@ func LambdaHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
 	//Create user struct which need to post.
 	pass := Auth{
 		Wallet:   "500957",
-		Password: "Test_Test_420",
+		Password: "Test_Test_42",
 	}
 
 	//Convert User to byte using Json.Marshal
