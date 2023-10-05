@@ -66,7 +66,8 @@ func LambdaHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
 	//resp, err := http.Post("https://reqres.in/api/users", "application/json", bytes.NewBuffer(body))
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	client := &http.Client{}
-	bearer := "970|laravel_sanctum_oKZCbpWyIGwQ5eBuGYmU2kWePZnKfkp3OOuyXJFW49f85549"
+	token := "970|laravel_sanctum_oKZCbpWyIGwQ5eBuGYmU2kWePZnKfkp3OOuyXJFW49f85549"
+	var bearer = "Bearer " + token
 	req, err := http.NewRequest("GET", "https://dev.payouts.tnmmpamba.co.mw/api/invoices/1000955", nil)
 	if err != nil {
 		// handle error
