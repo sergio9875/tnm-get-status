@@ -70,7 +70,7 @@ func LambdaHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
 	token := "986|laravel_sanctum_3Wj8d8RHaBCRySQjEEwyrIH1o9VPGNiRQUD0LQ3Nb1b1f97a"
 	var bearer = "Bearer " + token
 	var jsonStr = []byte(`{"msisdn":"265882997445", "amount:"100", "description":"narration", "invoice_number":"1242959"}`)
-	req, err := http.NewRequest("POST", "https://dev.payouts.tnmmpamba.co.mw/api/invoices/1000955", bytes.NewBuffer(jsonStr))
+	req, err := http.NewRequest("POST", "https://dev.payouts.tnmmpamba.co.mw/api/invoices", bytes.NewBuffer(jsonStr))
 	if err != nil {
 		// handle error
 	}
