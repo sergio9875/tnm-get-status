@@ -80,7 +80,7 @@ func LambdaHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
 	token := "992|laravel_sanctum_WJZXQACwJah8W2HA3AuyHadq8Bx10GLFWO9Ma9zK43900d2c"
-	var bearer = "Bearer " + token
+	bearer := "Bearer " + token
 	//http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	//r, err := http.NewRequest("POST", "https://dev.payouts.tnmmpamba.co.mw/api/invoices/", bytes.NewBuffer(body))
 	//if err != nil {
@@ -91,7 +91,8 @@ func LambdaHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
 		bytes.NewBuffer(body))
 
 	// add authorization header to the req
-	resp.Header.Add("Authorization", bearer)
+	//resp.Header.Add("Authorization", bearer)
+	resp.Header.Set("Authorization", bearer)
 	if err != nil {
 		log.Fatalf("impossible to build request: %s", err.Error())
 	}
