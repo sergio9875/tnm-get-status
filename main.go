@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
@@ -73,71 +72,32 @@ func LambdaHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
 	fmt.Println(reflect.TypeOf(pass))
 
 	body, _ := json.Marshal(post)
-
-	//Pass new buffer for request with URL to post.
-	//This will make a post request and will share the JSON data
-	//resp, err := http.Post("https://reqres.in/api/users", "application/json", bytes.NewBuffer(body))
-	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-
 	token := "992|laravel_sanctum_WJZXQACwJah8W2HA3AuyHadq8Bx10GLFWO9Ma9zK43900d2c"
-	//bearer := "Bearer " + token
-	//http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-	//r, err := http.NewRequest("POST", "https://dev.payouts.tnmmpamba.co.mw/api/invoices/", bytes.NewBuffer(body))
-	//if err != nil {
-	//	panic(err)
-	//}
+	url := "https://dev.payouts.tnmmpamba.co.mw/api/invoices"
 
-	resp, err := http.Post("https://dev.payouts.tnmmpamba.co.mw/api/invoices/", "application/json",
-		bytes.NewBuffer(body))
+	// Create a Bearer string by appending string access token
+	var bearer = "Bearer " + token
+
+	// Create a new request using http
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
 
 	// add authorization header to the req
-	//resp.Header.Add("Authorization", bearer)
-	// set headers
-	resp.Header.Add("Authorization", "Bearer "+token)
-	resp.Header.Add("Accept", "application/json")
-	if err != nil {
-		log.Fatalf("impossible to build request: %s", err.Error())
-	}
+	req.Header.Add("Authorization", bearer)
 
+	// Send req using http Client
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Println("Error on response.\n[ERROR] -", err)
+	}
 	defer resp.Body.Close()
 
-	var res map[string]interface{}
-
-	json.NewDecoder(resp.Body).Decode(&res)
-
-	fmt.Println("json********************************")
-	fmt.Println(res["json"])
-	fmt.Println("json********************************")
-
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
 	bodyRes, _ := io.ReadAll(resp.Body)
 	fmt.Println("response Body:", string(bodyRes))
 
-	//req, err := http.NewRequest(http.MethodPost, postURL, bytes.NewBuffer(reqBody))
-	//if err != nil {
-	//	log.Fatalf("impossible to build request: %s", err)
-	//}
-	// add headers
-	//r.Header.Add("Content-Type", "application/json")
-
-	if err != nil {
-		log.Error("failed to create a new request", err.Error())
-		return err
-	}
-
-	//client := &http.Client{}
-	//res, err := client.Do(r)
-	//if err != nil {
-	//	panic(err)
-	//}
-	//log.Printf("status Code: %d", res.StatusCode)
-	//defer res.Body.Close()
-	//
-	//if err != nil {
-	//	log.Error("Failed to read response body", err.Error())
-	//	return nil, err
-	//}
+	fmt.Println("json********************************")
+	fmt.Println(string(bodyRes))
+	fmt.Println("json********************************")
 
 	//var responseBody = new(models.ChargeResponse)
 	//err = json.Unmarshal(body, &responseBody)
