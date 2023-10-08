@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"fmt"
@@ -65,10 +66,11 @@ func LambdaHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
 	//This will make a post request and will share the JSON data
 	//resp, err := http.Post("https://reqres.in/api/users", "application/json", bytes.NewBuffer(body))
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-	client := &http.Client{}
-	token := "970|laravel_sanctum_oKZCbpWyIGwQ5eBuGYmU2kWePZnKfkp3OOuyXJFW49f85549"
+
+	token := "986|laravel_sanctum_3Wj8d8RHaBCRySQjEEwyrIH1o9VPGNiRQUD0LQ3Nb1b1f97a"
 	var bearer = "Bearer " + token
-	req, err := http.NewRequest("GET", "https://dev.payouts.tnmmpamba.co.mw/api/invoices/1000955", nil)
+	var jsonStr = []byte(`{"msisdn":"265882997445", "amount:"100", "description":"narration", "invoice_number":"1242959"}`)
+	req, err := http.NewRequest("POST", "https://dev.payouts.tnmmpamba.co.mw/api/invoices/1000955", bytes.NewBuffer(jsonStr))
 	if err != nil {
 		// handle error
 	}
@@ -77,20 +79,18 @@ func LambdaHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
 
 	// add authorization header to the req
 	req.Header.Add("Authorization", bearer)
+	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		// handle error
+		panic(err)
 	}
+	defer res.Body.Close()
 
-	responseBody, err := io.ReadAll(res.Body)
+	fmt.Println("response Status:", res.Status)
+	fmt.Println("response Headers:", res.Header)
+	body, _ := io.ReadAll(res.Body)
+	fmt.Println("response Body:", string(body))
 
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	jsonStr := string(responseBody)
-	fmt.Println("Status: ", res.Status)
-	fmt.Println("Response body: ", jsonStr)
 	//resp, err := http.Post("https://dev.payouts.tnmmpamba.co.mw/api/authenticate", "application/json", bytes.NewBuffer(body))
 	////req.Header.Add("Authorization", "Bearer ...")
 	//// An error is returned if something goes wrong
