@@ -3,18 +3,20 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/google/uuid"
+	"io"
 	log "malawi-getstatus/logger"
 	"malawi-getstatus/process"
 	"malawi-getstatus/utils"
 	"net/http"
 	"os"
-	"strconv"
+	"reflect"
 )
 
 var invokeCount = 0
@@ -38,24 +40,23 @@ func LambdaHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
 		Wallet   string `json:"wallet"`
 		Password string `json:"password"`
 	}
-	type PostCharge struct {
+	type Post struct {
 		Msisdn        string `json:"msisdn"`
 		Amount        int    `json:"amount"`
 		Description   string `json:"description"`
 		InvoiceNumber string `json:"invoice_number"`
 	}
 
-	//type Post struct {
-	//	ID     string `json:"id,omitempty"`
-	//	Title  string `json:"title"`
-	//	Body   string `json:"Body"`
-	//	UserID string `json:"user_id"`
-	//}
-	//pass := Auth{
-	//	Wallet:   "500957",
-	//	Password: "Test_Test_42",
-	//}
-
+	pass := Auth{
+		Wallet:   "500957",
+		Password: "Test_Test_42",
+	}
+	post := Post{
+		Msisdn:        "265882997445",
+		Amount:        280,
+		InvoiceNumber: "1252002",
+		Description:   "Test1123",
+	}
 	type TokenRes struct {
 		Token     string `json:"token,omitempty"`
 		ExpiresAt string `json:"expires_at,omitempty"`
@@ -67,94 +68,76 @@ func LambdaHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
 		Data    TokenRes    `json:"data,omitempty"`
 	}
 
-	//post := Post{
-	//	Msisdn:        "265882997445",
-	//	Amount:        280,
-	//	InvoiceNumber: "1252002",
-	//	Description:   "Test1123",
-	//}
-	p := new(PostCharge)
-	p.Msisdn = "265882997445"
-	p.Amount = 230
-	p.InvoiceNumber = "1252003"
-	p.Description = "Test1123"
-
-	// Now we need erializes Post 'p' to JSON
-	b, err := json.Marshal(p)
-	if err != nil {
-		log.Fatalf("Failed to Serialize to JSON from native Go struct type: %v", err.Error())
-	}
-	token := "992|laravel_sanctum_WJZXQACwJah8W2HA3AuyHadq8Bx10GLFWO9Ma9zK43900d2c"
-	bearer := "Bearer " + token
-	url := "https://dev.payouts.tnmmpamba.co.mw/api/invoices"
-
-	// So, bytes package will take care of that.
-	body := bytes.NewBuffer(b)
-
-	// REST APIs means, always think in terms of 'resources'.
-	// This is good resource: https://www.practical-go-lessons.com/chap-35-build-an-http-client
-	// This post method uses default http client, so timeout is NOT mentioned.
-	// Doc of this POST API can be found here: https://jsonplaceholder.typicode.com/guide/.
-	//postURL := "https://jsonplaceholder.typicode.com/posts"
-	res, err := http.Post(url, "application/json; charset=utf-8", body)
-	res.Header.Add("Authorization", bearer)
-	if err != nil {
-		log.Fatalf("Failed to create resource at: %s and the error is: %v\n", url, err)
-	}
-
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
-	defer res.Body.Close()
-
-	// Let us just print the response headers info from the server
-	log.Printf("Status received from server is: %s", res.Status)
-	log.Printf("StatusCode received from server is: %d", strconv.Itoa(res.StatusCode))
-	log.Printf("Content Type received from Server is: %s", res.Header["Content-Type"][0])
-
-	data := make(map[string]interface{})
-	if err := json.NewDecoder(res.Body).Decode(&data); err != nil {
-		log.Fatalf("Failed to read response body: %v", err.Error())
-	}
-
-	// Let's print the map data by iterating over it.
-	// Usually in real usecases we use this response to pass to ther functions.
-	for key, value := range data {
-		fmt.Printf("%s: %v\n", key, value)
-	}
-	log.Println("We have successfully created resource and read the response from API server.")
 	//Convert User to byte using Json.Marshal
 	//Ignoring error.
-	//fmt.Println(reflect.TypeOf(pass))
-	//
-	//body, _ := json.Marshal(post)
-	//token := "992|laravel_sanctum_WJZXQACwJah8W2HA3AuyHadq8Bx10GLFWO9Ma9zK43900d2c"
-	//url := "https://dev.payouts.tnmmpamba.co.mw/api/invoices"
-	//
-	//// Create a Bearer string by appending string access token
-	//var bearer = "Bearer " + token
-	//
-	//// Create a new request using http
-	//req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
-	//
-	//// add authorization header to the req
-	//req.Header.Add("Authorization", bearer)
-	//
-	//// Send req using http Client
-	//client := &http.Client{}
-	//resp, err := client.Do(req)
+	fmt.Println(reflect.TypeOf(pass))
+
+	body, _ := json.Marshal(post)
+
+	//Pass new buffer for request with URL to post.
+	//This will make a post request and will share the JSON data
+	//resp, err := http.Post("https://reqres.in/api/users", "application/json", bytes.NewBuffer(body))
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+
+	token := "992|laravel_sanctum_WJZXQACwJah8W2HA3AuyHadq8Bx10GLFWO9Ma9zK43900d2c"
+	//bearer := "Bearer " + token
+	//http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	//r, err := http.NewRequest("POST", "https://dev.payouts.tnmmpamba.co.mw/api/invoices/", bytes.NewBuffer(body))
 	//if err != nil {
-	//	log.Println("Error on response.\n[ERROR] -", err)
+	//	panic(err)
 	//}
-	//defer resp.Body.Close()
+
+	resp, err := http.Post("https://dev.payouts.tnmmpamba.co.mw/api/invoices/", "application/json",
+		bytes.NewBuffer(body))
+
+	// add authorization header to the req
+	//resp.Header.Add("Authorization", bearer)
+	// set headers
+	resp.Header.Add("Authorization", "Bearer "+token)
+	resp.Header.Add("Accept", "application/json")
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err.Error())
+	}
+
+	defer resp.Body.Close()
+
+	var res map[string]interface{}
+
+	json.NewDecoder(resp.Body).Decode(&res)
+
+	fmt.Println("json********************************")
+	fmt.Println(res["json"])
+	fmt.Println("json********************************")
+
+	fmt.Println("response Status:", resp.Status)
+	fmt.Println("response Headers:", resp.Header)
+	bodyRes, _ := io.ReadAll(resp.Body)
+	fmt.Println("response Body:", string(bodyRes))
+
+	//req, err := http.NewRequest(http.MethodPost, postURL, bytes.NewBuffer(reqBody))
+	//if err != nil {
+	//	log.Fatalf("impossible to build request: %s", err)
+	//}
+	// add headers
+	//r.Header.Add("Content-Type", "application/json")
+
+	if err != nil {
+		log.Error("failed to create a new request", err.Error())
+		return err
+	}
+
+	//client := &http.Client{}
+	//res, err := client.Do(r)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//log.Printf("status Code: %d", res.StatusCode)
+	//defer res.Body.Close()
 	//
-	//bodyRes, _ := io.ReadAll(resp.Body)
-	//fmt.Println("response Body:", string(bodyRes))
-	//
-	//fmt.Println("json********************************")
-	//fmt.Println(string(bodyRes))
-	//fmt.Println("json********************************")
+	//if err != nil {
+	//	log.Error("Failed to read response body", err.Error())
+	//	return nil, err
+	//}
 
 	//var responseBody = new(models.ChargeResponse)
 	//err = json.Unmarshal(body, &responseBody)
