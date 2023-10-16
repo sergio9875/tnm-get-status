@@ -58,6 +58,42 @@ func callClient(jsonStr string) error {
 	return nil
 }
 
+func callPost(token string) error {
+	// JSON body
+	//	body := []byte(`{
+	//		"msisdn": "265882997445",
+	//		"amount": 100,
+	//		"description":"some narration",
+	//"invoice_number": "1252005"
+	//	}`)
+
+	url := "https://payouts.tnmmpamba.co.mw/api/invoices/refund/AJ950B60NF"
+	// create request
+	req, err := http.NewRequest("POST", url, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	// set headers
+	req.Header.Add("Authorization", "Bearer "+token)
+	req.Header.Add("Accept", "application/json")
+
+	client := http.Client{Timeout: 5 * time.Second}
+	response, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Println("Error while reading the response bytes:", err)
+	}
+	log.Println("response from get:", string(body))
+	log.Println(string(body))
+	return nil
+}
+
 // LambdaHandler - Listen to S3 events and start processing
 func LambdaHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
 
@@ -123,7 +159,8 @@ func LambdaHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
 	}
 	log.Printf("TOKEN____RES***: %s", tokenResponse.Data.Token)
 
-	resultApi := callClient(tokenResponse.Data.Token)
+	//resultApi := callClient(tokenResponse.Data.Token)
+	resultApi := callPost(tokenResponse.Data.Token)
 	log.Println("reultapi", resultApi)
 
 	log.Info("END PROCESS")
