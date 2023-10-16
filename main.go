@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/google/uuid"
 	"io"
+	"io/ioutil"
 	log "malawi-getstatus/logger"
 	"malawi-getstatus/process"
 	"malawi-getstatus/utils"
@@ -29,6 +30,32 @@ func Init() {
 
 func init() {
 	// used to init anything special
+}
+func callClient(jsonStr string) error {
+	//start := time.Now()
+	var err error
+	var bearer = "Bearer " + jsonStr
+
+	url := "https://dev.payouts.tnmmpamba.co.mw/api/invoices/AJ950B60NF"
+
+	request, err := http.NewRequest(http.MethodGet, url, nil)
+
+	request.Header.Add("Authorization", bearer)
+	request.Header.Set("Content-Type", "application/json") // => your content-type
+	client := http.Client{Timeout: 5 * time.Second}
+	response, err := client.Do(request)
+	if err != nil {
+		panic(err)
+	}
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Println("Error while reading the response bytes:", err)
+	}
+	log.Println("response from get:", string(body))
+	log.Println(string(body))
+	return nil
 }
 
 // LambdaHandler - Listen to S3 events and start processing
@@ -96,34 +123,9 @@ func LambdaHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
 	}
 	log.Printf("TOKEN____RES***: %s", tokenResponse.Data.Token)
 
-	var bearer = "Bearer " + tokenResponse.Data.Token
+	resultApi := callClient(tokenResponse.Data.Token)
+	log.Println("reultapi", resultApi)
 
-	uri := "https://dev.payouts.tnmmpamba.co.mw/api/invoices/AJ950B60NF"
-	req, err = http.NewRequest("GET", uri, nil)
-	req.Header.Add("Authorization", bearer)
-	if err != nil {
-		log.Fatalf("http.NewRequest() failed with '%s'\n", err.Error())
-	}
-
-	// create a context indicating 100 ms timeout
-	ctx, _ = context.WithTimeout(context.TODO(), 500*time.Millisecond)
-	// get a new request based on original request but with the context
-
-	resp, err := http.DefaultClient.Do(req.WithContext(ctx))
-
-	if err != nil {
-		// the request should timeout because we want to wait max 100 ms
-		// but the server doesn't return response for 3 seconds
-		log.Fatalf("http.DefaultClient.Do() failed with:\n'%s'\n", err.Error())
-	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-
-		}
-	}(resp.Body)
-
-	log.Printf("res body: %s", string(resBody))
 	log.Info("END PROCESS")
 
 	os.Exit(2)
