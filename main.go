@@ -59,6 +59,7 @@ func callClient(jsonStr string) error {
 }
 
 func callPost(token string) error {
+	log.Println("TOKEN!!!!!!!!!!!!", token)
 	// JSON body
 	//	body := []byte(`{
 	//		"msisdn": "265882997445",
