@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 )
 
 var invokeCount = 0
@@ -85,7 +86,7 @@ func LambdaHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
 	if err != nil {
 		log.Fatalf("impossible to read all body of response: %s", err.Error())
 	}
-	log.Printf("res body: %s", string(resBody))
+	log.Printf("res body token: %s", string(resBody))
 
 	var tokenResponse *TokenResponse
 	err = json.Unmarshal(resBody, &tokenResponse)
@@ -95,7 +96,36 @@ func LambdaHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
 	}
 	log.Printf("TOKEN____RES***: %s", tokenResponse.Data.Token)
 
+	var bearer = "Bearer " + tokenResponse.Data.Token
+
+	uri := "https://dev.payouts.tnmmpamba.co.mw/api/invoices/AJ950B60NF"
+	req, err = http.NewRequest("GET", uri, nil)
+	req.Header.Add("Authorization", bearer)
+	if err != nil {
+		log.Fatalf("http.NewRequest() failed with '%s'\n", err.Error())
+	}
+
+	// create a context indicating 100 ms timeout
+	ctx, _ = context.WithTimeout(context.TODO(), 500*time.Millisecond)
+	// get a new request based on original request but with the context
+
+	resp, err := http.DefaultClient.Do(req.WithContext(ctx))
+
+	if err != nil {
+		// the request should timeout because we want to wait max 100 ms
+		// but the server doesn't return response for 3 seconds
+		log.Fatalf("http.DefaultClient.Do() failed with:\n'%s'\n", err.Error())
+	}
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+
+		}
+	}(resp.Body)
+
+	log.Printf("res body: %s", string(resBody))
 	log.Info("END PROCESS")
+
 	os.Exit(2)
 
 	log.Debug("ROOT", "version: <GIT_HASH>")
