@@ -5,6 +5,8 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -14,6 +16,7 @@ import (
 	log "malawi-getstatus/logger"
 	"malawi-getstatus/process"
 	"malawi-getstatus/utils"
+	"net"
 	"net/http"
 	"os"
 	"strconv"
@@ -59,8 +62,7 @@ func callClient(jsonStr string) error {
 }
 
 func callPost(token string) error {
-	log.Println("TOKEN!!!!!!!!!!!!", token)
-	bearer := "Bearer " + token
+
 	// JSON body
 	//	body := []byte(`{
 	//		"msisdn": "265882997445",
@@ -70,29 +72,48 @@ func callPost(token string) error {
 	//	}`)
 
 	url := "https://payouts.tnmmpamba.co.mw/api/invoices/refund/AJ950B60NF"
-	// create request
-	req, err := http.NewRequest("POST", url, nil)
-	if err != nil {
-		panic(err)
+	const ConnectMaxWaitTime = 10 * time.Second
+	const RequestMaxWaitTime = 30 * time.Second
+
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			DialContext: (&net.Dialer{
+				Timeout: ConnectMaxWaitTime,
+			}).DialContext,
+		},
+	}
+	var bearer = "Bearer " + token
+
+	ctx, cancel := context.WithTimeout(context.Background(), RequestMaxWaitTime)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, nil)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Add("Authorization", bearer)
+	rsp, err := client.Do(req)
+	if rsp != nil {
+		defer func(Body io.ReadCloser) {
+			err := Body.Close()
+			if err != nil {
+
+			}
+		}(rsp.Body)
+	}
+	var e net.Error
+	if errors.As(err, &e) && e.Timeout() {
+		log.Error("Do request timeout: %s\n", err)
 	}
 
-	// set headers
-	req.Header.Set("Authorization", bearer)
-	req.Header.Add("Accept", "application/json")
+	fmt.Println("Read body")
 
-	client := http.Client{Timeout: 5 * time.Second}
-	response, err := client.Do(req)
+	body, err := io.ReadAll(rsp.Body)
 	if err != nil {
-		panic(err)
+		log.Error("Cannot read all response body: %s\n", err)
 	}
-	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Println("Error while reading the response bytes:", err)
-	}
-	log.Println("response from get:", string(body))
-	log.Println(string(body))
+	log.Printf("status Code: %d", strconv.Itoa(rsp.StatusCode))
+	log.Infof("%s", string(body))
+
 	return nil
 }
 
