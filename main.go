@@ -36,7 +36,7 @@ func callClient(jsonStr string) error {
 	var err error
 	var bearer = "Bearer " + jsonStr
 
-	url := "https://dev.payouts.tnmmpamba.co.mw/api/invoices/AJ950B60NF"
+	url := "https://dev.payouts.tnmmpamba.co.mw/api/invoices/1350604"
 
 	request, err := http.NewRequest(http.MethodGet, url, nil)
 
