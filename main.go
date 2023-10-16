@@ -62,7 +62,7 @@ func LambdaHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
 		log.Fatalf("impossible to marshall token config: %s", err.Error())
 	}
 	client := &http.Client{}
-	client.Transport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	req, err := http.NewRequest(http.MethodPost, "https://dev.payouts.tnmmpamba.co.mw/api/authenticate", bytes.NewReader(marshalled))
 	if err != nil {
 		log.Fatalf("impossible to build request: %s", err.Error())
