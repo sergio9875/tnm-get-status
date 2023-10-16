@@ -60,6 +60,7 @@ func callClient(jsonStr string) error {
 
 func callPost(token string) error {
 	log.Println("TOKEN!!!!!!!!!!!!", token)
+	bearer := "Bearer " + token
 	// JSON body
 	//	body := []byte(`{
 	//		"msisdn": "265882997445",
@@ -76,7 +77,7 @@ func callPost(token string) error {
 	}
 
 	// set headers
-	req.Header.Add("Authorization", "Bearer "+token)
+	req.Header.Set("Authorization", bearer)
 	req.Header.Add("Accept", "application/json")
 
 	client := http.Client{Timeout: 5 * time.Second}
