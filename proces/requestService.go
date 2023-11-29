@@ -125,7 +125,7 @@ func (c *Controller) SendGetRequest(transactionId string, token string, urlGetSt
 	if err != nil {
 		log.Fatalf(": %s", err.Error())
 	}
-
+	transactionId = "1350868"
 	// Path params
 	base.Path += transactionId
 
