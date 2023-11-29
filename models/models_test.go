@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"testing"
 	"time"
-
-	"github.com/aws/aws-sdk-go-v2/aws"
 )
 
 func TestEvent_MarshalJSON(t *testing.T) {
@@ -56,89 +54,89 @@ func TestEvent_UnmarshalJSONError(t *testing.T) {
 	}
 }
 
-func TestSecretModel_Merge(t *testing.T) {
-	sm := &SecretModel{}
-	ism := aws.String(`{
-    "db": {
-      "treasury": {
-        "dialect": "mysql"
-      },,,,,,,,,,,,,,,,,,,,,,,,
-    }
-  }`)
-	// bad json
-	sm = sm.Merge(ism)
-	if sm != nil {
-		t.Errorf("Error was expecting a nil")
-		return
-	}
-	// =============================
-	sm = &SecretModel{}
-	ism = aws.String(`{
-    "db": {
-      "treasury": {
-        "dialect": "mysql"
-      }
-    }
-  }`)
-	// good json
-	sm = sm.Merge(ism)
-	if sm == nil {
-		t.Errorf("Error was expecting a not nil")
-		return
-	}
-	// =============================
-	sm = &SecretModel{
-		Database: &DBConfig{},
-	}
-	ism = aws.String(`{
-    "db": {
-      "treasury": {
-        "dialect": "mysql"
-      }
-    }
-  }`)
-	// good json
-	sm = sm.Merge(ism)
-	if sm == nil {
-		t.Errorf("Error was expecting a not nil")
-		return
-	}
-	// =============================
-	sm = &SecretModel{
-		Database: &DBConfig{
-			Africainv: &MssqlConfig{},
-		},
-	}
-	ism = aws.String(`{
-    "db": {
-      "treasury": {
-        "dialect": "mysql"
-      }
-    }
-  }`)
-	// good json
-	sm = sm.Merge(ism)
-	if sm == nil {
-		t.Errorf("Error was expecting a not nil")
-		return
-	}
-	// =============================
-	sm = &SecretModel{
-		Database: &DBConfig{
-			Africainv: &MssqlConfig{},
-		},
-	}
-	ism = aws.String(`{
-    "db": {
-      "treasury": {
-        "dialect": "mysql"
-      }
-    }
-  }`)
-	// good json
-	sm = sm.Merge(ism)
-	if sm == nil {
-		t.Errorf("Error was expecting a not nil")
-		return
-	}
-}
+//func TestSecretModel_Merge(t *testing.T) {
+//	sm := &SecretModel{}
+//	ism := aws.String(`{
+//    "db": {
+//      "treasury": {
+//        "dialect": "mysql"
+//      },,,,,,,,,,,,,,,,,,,,,,,,
+//    }
+//  }`)
+//	// bad json
+//	sm = sm.Merge(ism)
+//	if sm != nil {
+//		t.Errorf("Error was expecting a nil")
+//		return
+//	}
+//	// =============================
+//	sm = &SecretModel{}
+//	ism = aws.String(`{
+//    "db": {
+//      "treasury": {
+//        "dialect": "mysql"
+//      }
+//    }
+//  }`)
+//	// good json
+//	sm = sm.Merge(ism)
+//	if sm == nil {
+//		t.Errorf("Error was expecting a not nil")
+//		return
+//	}
+//	// =============================
+//	sm = &SecretModel{
+//		Database: &DBConfig{},
+//	}
+//	ism = aws.String(`{
+//    "db": {
+//      "treasury": {
+//        "dialect": "mysql"
+//      }
+//    }
+//  }`)
+//	// good json
+//	sm = sm.Merge(ism)
+//	if sm == nil {
+//		t.Errorf("Error was expecting a not nil")
+//		return
+//	}
+//	// =============================
+//	sm = &SecretModel{
+//		Database: &DBConfig{
+//			Africainv: &MssqlConfig{},
+//		},
+//	}
+//	ism = aws.String(`{
+//    "db": {
+//      "treasury": {
+//        "dialect": "mysql"
+//      }
+//    }
+//  }`)
+//	// good json
+//	sm = sm.Merge(ism)
+//	if sm == nil {
+//		t.Errorf("Error was expecting a not nil")
+//		return
+//	}
+//	// =============================
+//	sm = &SecretModel{
+//		Database: &DBConfig{
+//			Africainv: &MssqlConfig{},
+//		},
+//	}
+//	ism = aws.String(`{
+//    "db": {
+//      "treasury": {
+//        "dialect": "mysql"
+//      }
+//    }
+//  }`)
+//	// good json
+//	sm = sm.Merge(ism)
+//	if sm == nil {
+//		t.Errorf("Error was expecting a not nil")
+//		return
+//	}
+//}

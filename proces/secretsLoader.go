@@ -69,12 +69,6 @@ func CreateSMClient() *secretsmanager.Client {
 	cfg, _ := config.LoadDefaultConfig(context.TODO(),
 		config.WithRegion(os.Getenv("AWS_REGION")),
 	)
-
-	// Configure a client with debug logging enabled
-	if log.ValidateAgainstConfiguredLogLevel(log.TRACE) {
-		cfg.ClientLogMode = aws.LogRequestWithBody | aws.LogResponse
-	}
-
 	return secretsmanager.NewFromConfig(cfg)
 }
 
