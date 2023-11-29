@@ -19,9 +19,9 @@ func TestEvent_MarshalJSON(t *testing.T) {
 		t.Errorf("Error while marshalling: %v", err)
 		return
 	}
-	if string(data) != "{\"requested_at\":1611615661,\"action\":\"Test\",\"requested_by\":123}" {
+	if string(data) != "{\"requested_at\":1611608461,\"action\":\"Test\",\"requested_by\":123}" {
 		t.Errorf("Error while marshalling: RequestedBy expected[%s], got[%s]",
-			"{\"requested_at\":1611615661,\"action\":\"Test\",\"requested_by\":123}",
+			"{\"requested_at\":1611608461,\"action\":\"Test\",\"requested_by\":123}",
 			string(data))
 	}
 }

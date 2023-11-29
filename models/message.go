@@ -17,17 +17,45 @@ type SumoPayload struct {
 }
 
 type IncomingRequest struct {
-	Url             string `json:"url" redact:"complete"`
-	ApiKey          string `json:"apiKey" redact:"complete"`
-	ApiSecret       string `json:"apiSecret" redact:"complete"`
-	AcquireRoute    string `json:"acquireRoute"`
-	Action          string `json:"action" validate:"required"`
-	UrlQuery        string `json:"urlQuery" redact:"complete"`
-	TranType        int    `json:"tranType"`
-	OriginalTransId string `json:"originalTransId" redact:"complete"`
-	TransId         string `json:"transId,omitempty"`
-	TransrId        string `json:"transrId,omitempty"`
-	Amount          string `json:"amount,omitempty"`
+	CallbackUrl     string `json:"CallbackUrl" validate:"omitempty,url"`
+	Action          string `json:"Action" validate:"required,actionTypes"`
+	URLQuery        string `json:"URLQuery,omitempty" validate:"omitempty,url"`
+	URLToken        string `json:"URLToken,omitempty" validate:"omitempty,url"`
+	CellphoneNumber string `json:"CellphoneNumber" validate:"omitempty,cellnumber"`
+	Amount          int    `json:"Amount"`
+	Wallet          string `json:"Wallet" redact:"complete"`
+	Password        string `json:"Password" redact:"complete"`
+	TransId         string `json:"TransId"`
+	MbtId           string `json:"MbtId"`
+	Description     string `json:"Description,omitempty"`
+	IsInvoice       bool   `json:"IsInvoice,omitempty"`
+	IsRefund        bool   `json:"IsRefund,omitempty"`
+}
+
+type TnmBodyResponse struct {
+	InvoiceNumber         string `json:"invoice_number,omitempty"`
+	Amount                string `json:"amount,omitempty"`
+	Msisdn                string `json:"msisdn,omitempty"`
+	ReceiptNumber         string `json:"receipt_number,omitempty"`
+	SettledAt             string `json:"settled_at,omitempty"`
+	Paid                  bool   `json:"paid"`
+	ReversalTranscationId string `json:"reversal_transcation_id"`
+	Reversed              bool   `json:"reversed"`
+	ReversedAt            string `json:"reversed_at"`
+}
+
+type TnmResponse struct {
+	Message string          `json:"message"`
+	Errors  interface{}     `json:"errors,omitempty"`
+	Trace   interface{}     `json:"trace,omitempty"`
+	Data    TnmBodyResponse `json:"data,omitempty"`
+}
+
+type ApiResult struct {
+	Response   string `json:"response"`
+	StatusCode int    `json:"statusCode"`
+	Message    string `json:"message"`
+	Token      string `json:"token,omitempty"`
 }
 
 type Response struct {
@@ -42,11 +70,32 @@ type RouteParams struct {
 	OriginalTransId string `json:"OriginalTransId" redact:"complete"`
 }
 
+type TokenRes struct {
+	Token     string `json:"token,omitempty"`
+	ExpiresAt string `json:"expires_at,omitempty"`
+}
+
+type TokenResponse struct {
+	Message string      `json:"message,omitempty"`
+	Errors  interface{} `json:"errors,omitempty"`
+	Trace   interface{} `json:"trace,omitempty"`
+	Data    TokenRes    `json:"data,omitempty"`
+}
+
+type Auth struct {
+	Wallet   string `json:"wallet" required:"wallet"`
+	Password string `json:"password" required:"password"`
+}
+
 type QueryStatus struct {
 	ApiKey       string      `json:"apiKey" redact:"complete"`
 	ApiSecret    string      `json:"apiSecret" redact:"complete"`
 	AcquireRoute string      `json:"acquireRoute" redact:"complete"`
 	RouteParams  RouteParams `json:"routeParams"`
+}
+
+type ErrorMalawiMessage struct {
+	Message string `json:"message"`
 }
 
 type ResponseBody struct {

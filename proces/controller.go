@@ -1,4 +1,4 @@
-package process
+package proces
 
 import (
 	"context"
@@ -7,6 +7,9 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
+	"github.com/mitchellh/mapstructure"
+	"malawi-getstatus/cache"
+	"malawi-getstatus/cache/redis"
 	"malawi-getstatus/enums"
 	log "malawi-getstatus/logger"
 	"malawi-getstatus/models"
@@ -14,7 +17,6 @@ import (
 	"malawi-getstatus/repository/mssql"
 	"malawi-getstatus/request"
 	"malawi-getstatus/utils"
-	"os"
 )
 
 // Controller container
@@ -26,6 +28,7 @@ type Controller struct {
 	config       *models.SecretModel
 	requestId    *string
 	httpClient   *request.IRequest
+	cacheClient  *cache.Cache
 }
 
 func (c *Controller) initClient() {
@@ -46,6 +49,7 @@ func NewController(secret string) *Controller {
 	controller.initRepository()
 	controller.initClient()
 	controller.initSumoProducer()
+	controller.initCacheService()
 	return &controller
 }
 
@@ -56,6 +60,14 @@ func (c *Controller) initSecret(secret string) {
 	}
 	c.config = c.secretHolder.LoadSecret()
 
+}
+
+func (c *Controller) initCacheService() {
+	cacheClient, err := redis.NewCache(c.config.Cache)
+	if err != nil {
+		log.Fatalf(*c.requestId, "Lambda init failed on cache service: %v", err)
+	}
+	c.cacheClient = &cacheClient
 }
 
 func (c *Controller) initSumoProducer() {
@@ -78,6 +90,7 @@ func (c *Controller) initSqsProducer(queueName string) {
 
 func (c *Controller) initRepository() {
 	localRepo, err := mssql.NewRepository(c.config.Database.Africainv)
+	fmt.Print("localRepo", localRepo)
 	if err != nil {
 		log.Fatalf(*c.requestId, "Lambda init failed on repository: %v", err)
 	}
@@ -106,65 +119,75 @@ func (c *Controller) PostProcess() {
 }
 
 func (c *Controller) Process(ctx context.Context, message events.SQSMessage) error {
-
-	//c.sendSumoMessages(ctx, "start tnm-malawi get callback process", message)
-
+	//c.sendSumoMessages(ctx, "start Get-Status TNM Malawi", message)
 	var err error
-
+	redisMessage := new(models.RedisMessage)
 	msgBody := new(models.IncomingRequest)
-	mtnResponseBody := new(models.ResponseBody)
-	mtnResponse := new(models.Response)
+	tnmResponseBody := new(models.ApiResult)
 
-	//if err = c.getMessage(message.Body, &msgBody); err != nil {
-	//	c.sendSumoMessages(ctx, err.Error(), nil)
-	//	return err
-	//}
-
-	//log.Info("URL", msgBody)
-
-	type Post struct {
-		Message string   `json:"message"`
-		Errors  []string `json:"errors"`
-		Trace   []string `json:"trace"`
-		Data    any      `json:"data"`
+	if err = c.getMessage(message.Body, &msgBody); err != nil {
+		c.sendSumoMessages(ctx, err.Error(), nil)
+		return nil
 	}
-	// HTTP endpoint
-	//posturl := "https://jsonplaceholder.typicode.com/posts"
 
-	// Create a HTTP post request
-	//r, err := http.NewRequest("POST", msgBody.UrlQuery, bytes.NewBuffer(body))
-	//if err != nil {
-	//	panic(err)
+	if err = c.GetCache(ctx, redisMessage.RedisKey, redisMessage); err != nil {
+		c.sendSumoMessages(ctx, err.Error(), nil)
+		return err
+	}
+
+	log.Infof(*c.requestId, "message body", msgBody)
+	// check if counter is bigger that max retry..
+	//if utils.SafeAtoi(msgBody., 10) >= utils.SafeAtoi(messageBody.MaxRetry, 3) {
+	//	log.Info(*c.requestId, "break sendRetryMessage Counter Over limit ", messageBody.Counter)
+	//	return nil
 	//}
 	//
-	//r.Header.Add("Content-Type", "application/json")
-
-	os.Exit(2)
-	MalawiRequest := c.mapTnmMalawiRequest(msgBody)
-
-	log.Infof(*c.requestId, "trying to send request", MalawiRequest)
-
-	// send Query getStatus to the Malawi.
-	if err := (*c.httpClient).PostWithJsonResponse(msgBody.Url, make(map[string]string, 0), MalawiRequest, mtnResponse); err != nil {
+	log.Infof(*c.requestId, "check status by transId", msgBody.TransId)
+	log.Info("URL", msgBody.URLQuery)
+	// todo GET CURRENT STATUS OF TRANSACTION BY TRANS_ID
+	//if messageBody.IsRefund == "true" {
+	//	return c.RefundProcess(ctx, messageBody, redisMessage)
+	//}
+	transactionStatus, err := c.GetTransactionStatus(msgBody.TransId)
+	if err != nil {
+		log.Info(*c.requestId, "", err.Error())
+		c.sendSumoMessages(ctx, err.Error(), nil)
 		return err
 	}
-
-	if err = json.Unmarshal([]byte(mtnResponse.ResponseBody), mtnResponseBody); err != nil {
-		log.Error(*c.requestId, "___ERROR___ : Can't Read Response From Malawi ", err.Error())
+	fmt.Println("transactionStatus****", transactionStatus)
+	if transactionStatus != enums.Pending {
+		log.Info(*c.requestId, "Status not Pending ", transactionStatus)
+		return nil
+	}
+	if tnmResponseBody, err = c.SendGetStatus(ctx, msgBody); err != nil {
+		c.sendSumoMessages(ctx, err.Error(), nil)
 		return err
 	}
-	log.Infof(*c.requestId, "RESPONSE_FROM_MALAWI %v", mtnResponseBody)
+	log.Info("RSP: Lambda <--- TNM MALAWI: ", tnmResponseBody)
 
-	if mtnResponseBody.ResultCode == enums.StatusCode {
+	//malawiRequest := c.mapTnmMalawiRequest(msgBody)
 
-		log.Infof(*c.requestId, "updateStatusRefund")
-		return c.updateStatusRefund(ctx, mtnResponseBody, msgBody)
-	} else {
-		log.Infof(*c.requestId, "Status is pending %v", mtnResponse.ResponseBody)
+	//return response, nil
+	//
+	//log.Infof(*c.requestId, "trying to send request", msgBody)
+	//url2 := "https://dev.payouts.tnmmpamba.co.mw/api/invoices/ST443Y5YT56532"
+	//
+	//// send Query getStatus to the Malawi.
+	//
+	//mtnResponseBody.ResultCode = "200"
+	////log.Info("RSP: Lambda <--- TNM MALAWI: ", responseBody)
+	//log.Infof(*c.requestId, "RESPONSE_FROM_MALAWI %v", tnmResponseBody)
+	//
+	//if mtnResponseBody.ResultCode == enums.StatusCode {
+	//
+	//	log.Infof(*c.requestId, "updateStatusRefund")
+	//	return c.updateStatusRefund(ctx, mtnResponseBody, msgBody)
+	//} else {
+	//	log.Infof(*c.requestId, "Status is pending %v", mtnResponse)
+	//
+	//}
 
-	}
-
-	return err
+	return nil
 }
 
 func (c *Controller) sendSumoMessages(ctx context.Context, message string, params interface{}) {
@@ -212,19 +235,39 @@ func (c *Controller) getMessage(message string, messageData interface{}) error {
 	return nil
 }
 
-func (c *Controller) mapTnmMalawiRequest(msgBody *models.IncomingRequest) *models.QueryStatus {
+//func (c *Controller) mapTnmMalawiRequest(msgBody *models.IncomingRequest) *models.QueryStatus {
+//
+//	paymentDetails := models.RouteParams{
+//		Action:          msgBody.Action,
+//		UrlQuery:        msgBody.UrlQuery,
+//		TranType:        msgBody.TranType,
+//		OriginalTransId: msgBody.TransId,
+//	}
+//	return &models.QueryStatus{
+//		ApiKey:       msgBody.ApiKey,
+//		AcquireRoute: msgBody.AcquireRoute,
+//		ApiSecret:    msgBody.ApiSecret,
+//		RouteParams:  paymentDetails,
+//	}
+//
+//}
 
-	paymentDetails := models.RouteParams{
-		Action:          msgBody.Action,
-		UrlQuery:        msgBody.UrlQuery,
-		TranType:        msgBody.TranType,
-		OriginalTransId: msgBody.OriginalTransId,
-	}
-	return &models.QueryStatus{
-		ApiKey:       msgBody.ApiKey,
-		AcquireRoute: msgBody.AcquireRoute,
-		ApiSecret:    msgBody.ApiSecret,
-		RouteParams:  paymentDetails,
+// get cache
+func (c *Controller) GetCache(ctx context.Context, redisKey string, cache *models.RedisMessage) error {
+	var err error
+	var result map[string]string
+
+	log.Info(*c.requestId, "trying to retrieve cache from redis: ", redisKey)
+
+	if result, err = (*c.cacheClient).HGetAll(ctx, redisKey); err != nil {
+		log.Error(*c.requestId, "unable to retrieve cache from redis: ", err.Error())
+		return err
 	}
 
+	if err = mapstructure.Decode(result, &cache); err != nil {
+		return err
+	}
+
+	log.Info(*c.requestId, "Successfully retrieved cache from redis: ", cache)
+	return nil
 }
