@@ -40,7 +40,7 @@ func (c *Controller) SendGetStatus(ctx context.Context, request *models.Incoming
 
 	}
 
-	return c.SendGetRequest(request.TransId, token.Token, request.URLQuery)
+	return c.SendGetRequest(request.MbtId, token.Token, request.URLQuery)
 }
 
 func (c *Controller) SendTokenRequest(PostURL string, wallet string, password string) (*models.ApiResult, error) {
