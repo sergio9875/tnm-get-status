@@ -22,13 +22,13 @@ func (m *mockSecretsManagerClient) GetSecretValue(ctx context.Context, params *s
 	return m.FakeGetSecretValue(ctx, params, optFns...)
 }
 
-//func TestTest(t *testing.T) {
-//  secretHolder := &SecretIDHolder{
-//    SecretID: "configuration/treasury/config",
-//    Client: CreateSMClient(),
-//  }
-//  _ = secretHolder.LoadSecret()
-//}
+func TestTest(t *testing.T) {
+	secretHolder := &SecretIDHolder{
+		SecretID: "configuration/treasury/config",
+		Client:   CreateSMClient(),
+	}
+	_ = secretHolder.LoadSecret()
+}
 
 func TestCreateSMService(t *testing.T) {
 	_ = os.Setenv("AWS_REGION", "eu-west-1")
