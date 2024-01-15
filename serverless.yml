@@ -36,7 +36,7 @@ provider:
             - "sqs:SendMessage"
             - "sqs:GetQueueAttributes"
           Resource:
-            - { 'Fn::GetAtt': [ MainQueue, Arn ] }
+            - { 'Fn::GetAtt': [ ${self:custom.MainQueue}, Arn ] }
             - ${file(./.deploy/config/${aws:accountId, '427246389222'}.yaml):queues.dpo_mail_sender}
             - ${file(./.deploy/config/${aws:accountId, '427246389222'}.yaml):queues.mgmt_email_sender}
         - Effect: "Allow"
@@ -44,7 +44,7 @@ provider:
             - "sqs:DeleteMessage"
             - "sqs:ReceiveMessage"
           Resource:
-            - { 'Fn::GetAtt': [ MainQueue, Arn ] }
+            - { 'Fn::GetAtt': [  ${self:custom.MainQueue}, Arn ] }
 
 package:
   patterns:
@@ -89,6 +89,6 @@ functions:
     vpc: ${file(./.deploy/config/${aws:accountId, '427246389222'}.yaml):vpc}
     events:
       - sqs:
-          arn: { 'Fn::GetAtt': [ MainQueue, Arn ] }
+          arn: { 'Fn::GetAtt': [ ${self:custom.MainQueue}, Arn ] }
           batchSize: 1
           maximumBatchingWindow: 0
