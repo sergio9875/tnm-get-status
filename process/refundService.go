@@ -2,10 +2,10 @@ package process
 
 import (
 	"context"
+	"golang.org/x/exp/slices"
 	"malawi-getstatus/enums"
 	log "malawi-getstatus/logger"
 	"malawi-getstatus/models"
-	. "slices"
 	"strconv"
 )
 
@@ -27,7 +27,7 @@ func (c *Controller) RefundProcess(ctx context.Context, messageBody *models.Inco
 		return err
 	}
 	transrStatusArray := []int{2, 5, 6, 9}
-	if Contains(transrStatusArray, transrStatus) {
+	if slices.Contains(transrStatusArray, transrStatus) {
 		responseBody := new(models.TnmResponse)
 		if responseBody, err = c.SendGetStatus(ctx, messageBody); err != nil {
 			c.sendSumoMessages(ctx, err.Error(), nil)

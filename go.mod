@@ -17,6 +17,7 @@ require (
 	github.com/google/uuid v1.4.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/stretchr/testify v1.8.2
+	golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3
 	golang.org/x/net v0.19.0
 )
 
