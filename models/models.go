@@ -50,6 +50,18 @@ type Services struct {
 	MailmailSenderQueueUrl string `json:"mailSenderQueueUrl,omitempty"`
 	SumoPusherUrl          string `json:"sumoPusherUrl,omitempty"`
 }
+type APIRequest struct {
+	Msisdn              string `json:"msisdn,omitempty"`
+	Amount              int    `json:"amount,omitempty"`
+	Receiver_type       int64  ` json:"receiver_type,omitempty"`
+	Receiver_identifier string `json:"receiver_identifier,omitempty" redact:"last4"`
+	Tran_id             string `json:"tran_id,omitempty"`
+	Receiver_msisdn     string `json:"receiver_msisdn,omitempty"`
+	Narration           string `json:"narration,omitempty"`
+	Description         string `json:"description,omitempty"`
+	Org_tran_id         string `json:"org_tran_id,omitempty"`
+	Invoice_number      string `json:"invoice_number"`
+}
 
 // SecretModel model
 type SecretModel struct {

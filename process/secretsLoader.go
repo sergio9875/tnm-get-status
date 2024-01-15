@@ -1,4 +1,4 @@
-package proces
+package process
 
 // If you need more information about configurations or implementing the sample code, visit the AWS docs:
 // https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/setting-up.html

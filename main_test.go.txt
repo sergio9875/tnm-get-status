@@ -33,21 +33,28 @@ func TestLambdaHandler(t *testing.T) {
 				ctx: context.TODO(),
 				sqsEvent: events.SQSEvent{Records: []events.SQSMessage{
 					{
-						MessageId: "24234",
-						Body: `{
-						"CallbackUrl": "https://cb.pgcoza.biz/tnm/mw/callback/request",
-                        "Action": "Invoice",
-						"UrlToken":"https://dev.payouts.tnmmpamba.co.mw/api/authenticate",
-						"UrlQuery":"https://dev.payouts.tnmmpamba.co.mw/api/invoices/",
-						"Wallet": "500957",
-						"Password": "Test_Test_42",
-						"TransId": "4979440",
-                         "MbtId": "1350874",
-						"Amount": 300,
-                         "CellphoneNumber": "265882009852",
-						"Description": "football ticket payment - VIP",
-                        "IsInvoice" : true
-					}`,
+						MessageId: "some Id",
+						Body:      `{"redisKey":"tnm_process:4981565:1352156"}`,
+
+						//Body: `{
+						//	"CallbackUrl": "https://cb.pgcoza.biz/tnm/mw/callback/request",
+						//    "Action": "Invoice",
+						//	"UrlToken":"https://dev.payouts.tnmmpamba.co.mw/api/authenticate",
+						//	"UrlQuery":"https://dev.payouts.tnmmpamba.co.mw/api/invoices/",
+						//    "QueueName": "https://sqs.eu-west-1.amazonaws.com/427246389222/tnm-malawi-get-status",
+						//	"Wallet": "500957",
+						//	"Password": "Test_Test_42",
+						//	"TransId": "4981549",
+						//    "MbtId": "1352144",
+						//    "Amount": 400,
+						//    "CellphoneNumber": "265882009852",
+						//	"Description": "Process service request successfully.",
+						//    "IsInvoice" : true,
+						//    "Ttl": "20",
+						//    "Counter" : "1",
+						//    "MaxRetry" : "3"
+						//}`,
+
 						ReceiptHandle: "Handle",
 					},
 				}},

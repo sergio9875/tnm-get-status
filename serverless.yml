@@ -90,18 +90,3 @@ functions:
           arn: { 'Fn::GetAtt': [ MainQueue, Arn ] }
           batchSize: 1
           maximumBatchingWindow: 0
-
-resources:
-  Description: Built via Pipeline ID ${env:CI_PIPELINE_IID} on ${env:CI_COMMIT_BRANCH} for commit ${env:CI_COMMIT_SHORT_SHA} by ${env:CI_COMMIT_AUTHOR}
-  Resources:
-    MainQueue:
-      Type: "AWS::SQS::Queue"
-      Properties:
-        QueueName: ${self:custom.functionName}
-        RedrivePolicy:
-          deadLetterTargetArn: { 'Fn::GetAtt': [ DeadLetterQueue, Arn ] }
-          maxReceiveCount: 1
-    DeadLetterQueue:
-      Type: AWS::SQS::Queue
-      Properties:
-        QueueName: ${self:custom.functionName}-dlq

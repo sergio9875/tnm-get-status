@@ -1,11 +1,10 @@
-package proces
+package process
 
 import (
-	"strconv"
-	"time"
-
 	"malawi-getstatus/enums"
 	"malawi-getstatus/models"
+	"strconv"
+	"time"
 )
 
 func GetPaymentGatewayCode(responseBody *models.ResponseBody) int {
@@ -20,8 +19,8 @@ func GetTimeStamp() string {
 	return strconv.Itoa(int(t))
 }
 
-func GetPaymentCodeForRefundStatus(responseBody *models.ResponseBody) int {
-	if responseBody.ResultCode == enums.Success {
+func GetPaymentCodeForRefundStatus(responseBody *models.TnmBodyResponse) int {
+	if responseBody.StatusCode == enums.StatusCode {
 		return 3
 	}
 	return 4

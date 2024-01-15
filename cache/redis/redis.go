@@ -34,6 +34,12 @@ func NewCache(config *models.Cache) (cache.Cache, error) {
 	return &Holder{Cache: rdb}, nil
 }
 
+func (h *Holder) HSet(ctx context.Context, key string, field string, value string) error {
+	args := make(map[string]string, 0)
+	args[field] = value
+	return h.Cache.HSet(ctx, key, args).Err()
+}
+
 func (h *Holder) Get(ctx context.Context, key string) (string, error) {
 	return h.Cache.Get(ctx, key).Result()
 }
@@ -44,20 +50,6 @@ func (h *Holder) HGet(ctx context.Context, key string, field string) (string, er
 
 func (h *Holder) HGetAll(ctx context.Context, key string) (map[string]string, error) {
 	return h.Cache.HGetAll(ctx, key).Result()
-}
-
-func (h *Holder) Set(ctx context.Context, key string, value interface{}, expire time.Duration) (string, error) {
-	return h.Cache.Set(ctx, key, value, expire).Result()
-}
-
-func (h *Holder) HSet(ctx context.Context, key string, field string, value string) error {
-	args := make(map[string]string, 0)
-	args[field] = value
-	return h.Cache.HSet(ctx, key, args).Err()
-}
-
-func (h *Holder) Decr(ctx context.Context, key string) (int64, error) {
-	return h.Cache.Decr(ctx, key).Result()
 }
 
 func (h *Holder) Expire(ctx context.Context, key string, ttl time.Duration) error {

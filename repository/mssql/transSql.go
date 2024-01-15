@@ -3,6 +3,7 @@ package mssql
 import (
 	"context"
 	"database/sql"
+	"malawi-getstatus/models"
 	"time"
 )
 
@@ -27,4 +28,32 @@ func (r *repository) UpdateTransRefund(transId int, amount float64, activeStatus
 		return err
 	}
 	return nil
+}
+
+func (r *repository) GetTransStatus(transId int) (*models.TransEntity, error) {
+
+	transStatus := new(models.TransEntity)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	const query = `SELECT TRANStransstid FROM africainv.dbo.TRANS WHERE TRANSID = @transId`
+	err := r.db.QueryRowContext(ctx, query, sql.NamedArg{Name: "transId", Value: transId}).Scan(&transStatus.TransStatus)
+	if err != nil {
+		return nil, err
+	}
+	return transStatus, nil
+}
+
+func (r *repository) GetRefundStatus(transrId int) (*models.TransrEntity, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	transEntity := new(models.TransrEntity)
+	const query = `select TRANSRtransrstatusid from africainv.dbo.TRANSR WHERE TRANSRID = @transrId`
+	row := r.db.QueryRowContext(ctx, query, sql.NamedArg{Name: "transrId", Value: transrId})
+	err := row.Scan(&transEntity.TRANSRtransrstatusid)
+	if err != nil {
+		return nil, err
+	}
+
+	return transEntity, nil
 }

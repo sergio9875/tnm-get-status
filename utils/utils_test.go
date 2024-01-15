@@ -297,13 +297,12 @@ func TestGetenv(t *testing.T) {
 }
 
 func TestSafeAtoi(t *testing.T) {
-	fb := 321
-	result := SafeAtoi("123weq", &fb)
-	if *result != fb {
+	result := SafeAtoi("123weq", 321)
+	if result != 321 {
 		t.Errorf("SafeAtoi test failed, expected[321], got[%d]", result)
 	}
-	result = SafeAtoi("123", &fb)
-	if *result != 123 {
+	result = SafeAtoi("123", 321)
+	if result != 123 {
 		t.Errorf("SafeAtoi test failed, expected[123], got[%d]", result)
 	}
 }

@@ -242,12 +242,12 @@ func Getenv(key, fallback string) string {
 	return fallback
 }
 
-func SafeAtoi(str string, fallback *int) *int {
+func SafeAtoi(str string, fallback int) int {
 	value, err := strconv.Atoi(str)
 	if err != nil {
 		return fallback
 	}
-	return &value
+	return value
 }
 
 func StringPtr(str string) *string {

@@ -3,10 +3,9 @@ package mssql
 import (
 	"database/sql"
 	"fmt"
+	_ "github.com/denisenkom/go-mssqldb"
 	"malawi-getstatus/models"
 	repo "malawi-getstatus/repository"
-
-	_ "github.com/denisenkom/go-mssqldb"
 )
 
 // repository represent the repository model

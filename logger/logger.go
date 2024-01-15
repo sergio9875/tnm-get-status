@@ -1,11 +1,10 @@
 package logger
 
 import (
-	"malawi-getstatus/utils"
-
 	"encoding/json"
 	"fmt"
 	"log"
+	"malawi-getstatus/utils"
 	"net/http"
 	"reflect"
 	"runtime"
