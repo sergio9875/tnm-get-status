@@ -5,7 +5,7 @@ import (
 	"malawi-getstatus/enums"
 	log "malawi-getstatus/logger"
 	"malawi-getstatus/models"
-	"slices"
+	. "slices"
 	"strconv"
 )
 
@@ -27,7 +27,7 @@ func (c *Controller) RefundProcess(ctx context.Context, messageBody *models.Inco
 		return err
 	}
 	transrStatusArray := []int{2, 5, 6, 9}
-	if slices.Contains(transrStatusArray, transrStatus) {
+	if Contains(transrStatusArray, transrStatus) {
 		responseBody := new(models.TnmResponse)
 		if responseBody, err = c.SendGetStatus(ctx, messageBody); err != nil {
 			c.sendSumoMessages(ctx, err.Error(), nil)
