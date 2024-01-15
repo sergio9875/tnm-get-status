@@ -1,4 +1,4 @@
-service: refund-get-status
+service: tnm-malawi-refund-get-status
 frameworkVersion: ^3.3.0
 configValidationMode: error
 
