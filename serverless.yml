@@ -5,6 +5,8 @@ configValidationMode: error
 custom:
   functionName: ${self:service}
   mainSecretName: ${file(./.deploy/config/${aws:accountId, '427246389222'}.yaml):environment_variables.secret_name}
+  MainQueue: ${file(./.deploy/config/${aws:accountId, '427246389222'}.yaml):queues.main_queue}
+
 
 provider:
   name: aws
