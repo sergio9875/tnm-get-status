@@ -4,6 +4,7 @@ configValidationMode: error
 
 custom:
   functionName: ${self:service}
+  functionHandler: get-status
   mainSecretName: ${file(./.deploy/config/${aws:accountId, '427246389222'}.yaml):environment_variables.secret_name}
   MainQueue: ${file(./.deploy/config/${aws:accountId, '427246389222'}.yaml):queues.main_queue}
 
@@ -74,7 +75,7 @@ package:
 
 functions:
   MainFunction:
-    handler: ${self:custom.functionName}
+    handler: ${self:custom.functionHandler}
     name: ${self:custom.functionName}
     description: Tnm Malawi check status
     runtime: go1.x
