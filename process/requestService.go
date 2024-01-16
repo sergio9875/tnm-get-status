@@ -120,7 +120,7 @@ func (c *Controller) SendGetRequest(transactionId string, token string, urlGetSt
 	//url3 := "http://localhost:8888/chargeSuccess"
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", urlGetStatus, nil)
+	req, err := http.NewRequest("GET", base.String(), nil)
 	if err != nil {
 		// handle error
 	}
