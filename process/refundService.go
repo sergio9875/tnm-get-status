@@ -6,6 +6,7 @@ import (
 	"malawi-getstatus/enums"
 	log "malawi-getstatus/logger"
 	"malawi-getstatus/models"
+	service "malawi-getstatus/services"
 	"strconv"
 )
 
@@ -29,7 +30,12 @@ func (c *Controller) RefundProcess(ctx context.Context, messageBody *models.Inco
 	transrStatusArray := []int{2, 5, 6, 9}
 	if slices.Contains(transrStatusArray, transrStatus) {
 		responseBody := new(models.TnmResponse)
-		if responseBody, err = c.SendGetStatus(ctx, messageBody); err != nil {
+		token, err := service.GetToken(messageBody.URLToken, messageBody.Wallet, messageBody.Password)
+		if err != nil {
+			log.Infof("ERR_MSG: %s\n", err.Error())
+			return err
+		}
+		if responseBody, err = c.SendGetRequest(messageBody.TransId, token.Data.Token, messageBody.URLQuery); err != nil {
 			c.sendSumoMessages(ctx, err.Error(), nil)
 			log.Infof(*c.requestId, "The error is "+err.Error(), nil)
 			return err

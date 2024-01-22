@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/google/uuid"
@@ -27,11 +26,6 @@ func init() {
 func LambdaHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
 	log.Debug("ROOT", "version: <GIT_HASH>")
 	//stdout and stderr are sent to AWS CloudWatch Logs
-
-	//fmt.Printf("Processing request data for request %s.\n", sqsEvent.Records.body)
-	fmt.Printf("Body size = %d.\n", len(sqsEvent.Records))
-	fmt.Println("request Body:", sqsEvent.Records)
-
 	if invokeCount == 0 {
 		Init()
 	}

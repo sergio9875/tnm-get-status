@@ -2,10 +2,10 @@ package process
 
 import (
 	"context"
-	"fmt"
 	"malawi-getstatus/enums"
 	log "malawi-getstatus/logger"
 	"malawi-getstatus/models"
+	service "malawi-getstatus/services"
 	"time"
 )
 
@@ -13,7 +13,7 @@ func (c *Controller) InvoiceProcess(ctx context.Context, messageBody *models.Inc
 
 	transactionStatus, err := c.GetTransactionStatus(messageBody.TransId)
 	if err != nil {
-		log.Info(*c.requestId, "", err.Error())
+		log.Info(*c.requestId, "transactionStatus", err.Error())
 		c.sendSumoMessages(ctx, err.Error(), nil)
 		return err
 	}
@@ -23,22 +23,30 @@ func (c *Controller) InvoiceProcess(ctx context.Context, messageBody *models.Inc
 		return err
 	}
 
-	fmt.Println("transactionStatus****", transactionStatus)
 	if transactionStatus != enums.Pending {
 		log.Info(*c.requestId, "Status not Pending ", transactionStatus)
 		return err
 	}
 
-	responseBody := new(models.TnmResponse)
-	if responseBody, err = c.SendGetStatus(ctx, messageBody); err != nil {
-		c.sendSumoMessages(ctx, err.Error(), nil)
-		log.Infof(*c.requestId, "The error is "+err.Error(), nil)
+	token, err := service.GetToken(messageBody.URLToken, messageBody.Wallet, messageBody.Password)
+	if err != nil {
+		log.Infof("ERR_MSG: %s\n", err.Error())
 		return err
 	}
-	log.Infof(*c.requestId, enums.MalawiResponse+"Invoice", responseBody)
-	c.sendSumoMessages(ctx, enums.MalawiResponse+"Invoice", responseBody)
 
-	fmt.Println("responseBody.Data.Paid", responseBody.Data.Paid)
+	//fmt.Println("Process....")
+	//fmt.Println("token@@@@@@@@@@@@", token.Data.Token)
+
+	responseBody := new(models.TnmResponse)
+	responseBody, err = c.SendGetRequest(messageBody.TransId, token.Data.Token, messageBody.URLQuery)
+	//c.sendSumoMessages(ctx, err.Error(), nil)
+	if err != nil {
+		log.Infof(*c.requestId, "ERROR_INFO: %s", err.Error())
+		return err
+	}
+
+	c.sendSumoMessages(ctx, enums.MalawiResponse+"Invoice", responseBody)
+	//os.Exit(2)
 
 	if responseBody.Data.Paid == true {
 		return c.SendCallBackRequest(ctx, messageBody, responseBody.Data.ReceiptNumber)
