@@ -7,21 +7,19 @@ import (
 	log "malawi-getstatus/logger"
 	"malawi-getstatus/models"
 	service "malawi-getstatus/services"
-	"os"
 	"strconv"
 	"strings"
 )
 
 func (c *Controller) RefundProcess(ctx context.Context, messageBody *models.IncomingRequest, redisBody *models.RedisMessage) error {
-
+	fmt.Println("Start_Refund_Process")
 	token, err := service.GetToken(messageBody.URLToken, messageBody.Wallet, messageBody.Password)
 	if err != nil {
 		log.Infof("ERR_MSG: %s\n", err.Error())
 		return err
 	}
 
-	fmt.Println("token@@@@@@@@@@@@", token)
-
+	fmt.Println("token@@@@@@@@@@@@_Refund")
 	responseBody := new(models.TnmBodyResponse)
 	responseBody, err = service.SendGetRequest(messageBody.TransId, token.Data.Token, messageBody.URLQuery)
 
@@ -30,19 +28,10 @@ func (c *Controller) RefundProcess(ctx context.Context, messageBody *models.Inco
 		log.Infof(*c.requestId, "ERROR_INFO: %s", err.Error())
 		return err
 	}
-
 	c.sendSumoMessages(ctx, enums.MalawiResponse+"Refund", responseBody)
-	//if responseBody, err = service.SendGetRequest(messageBody.TransId, token.Data.Token, messageBody.URLQuery); err != nil {
-	//	c.sendSumoMessages(ctx, err.Error(), nil)
-	//	log.Infof(*c.requestId, "The error is "+err.Error(), nil)
-	//	return err
-	//}
-	//log.Infof(*c.requestId, enums.MalawiResponse+"Refund", responseBody)
-	//c.sendSumoMessages(ctx, enums.MalawiResponse+"Refund", responseBody)
 
-	fmt.Println("data-reversed", responseBody.ReversedAt)
-	os.Exit(2)
-	if responseBody.Reversed == true {
+	fmt.Println("isDataReversed", responseBody.ReversedAt)
+	if responseBody.Reversed == enums.IsRefund {
 		return c.UpdateRefund(ctx, responseBody, messageBody)
 	}
 	return c.SendRetryMessage(ctx, messageBody, redisBody)
@@ -76,10 +65,6 @@ func (c *Controller) UpdateRefund(ctx context.Context, responseBody *models.TnmB
 		return err
 	}
 
-	fmt.Println("trans-ID", transId)
-	fmt.Println("transR-ID", transRid)
-	fmt.Println("amount", amount)
-	//os.Exit(2)
 	if err := (*c.repository).UpdateTransRefund(transId, amount, GetPaymentCodeForRefundStatus(responseBody), transRid); err != nil {
 		log.Error(*c.requestId, "Cant update Trans :  ", err.Error())
 		return err

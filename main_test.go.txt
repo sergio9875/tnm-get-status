@@ -34,7 +34,7 @@ func TestLambdaHandler(t *testing.T) {
 				sqsEvent: events.SQSEvent{Records: []events.SQSMessage{
 					{
 						MessageId: "some Id",
-						Body:      `{"redisKey":"tnm_process:4981860:1352255"}`,
+						Body:      `{"redisKey":"tnm_process:4981928:1352267"}`,
 
 						//Body: `{
 						//	"CallbackUrl": "https://cb.pgcoza.biz/tnm/mw/callback/request",

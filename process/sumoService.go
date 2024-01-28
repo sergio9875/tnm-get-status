@@ -58,7 +58,6 @@ func (c *Controller) GetMessage(message string, messageData interface{}) error {
 
 func (c *Controller) SendRetryMessage(ctx context.Context, messageBody *models.IncomingRequest, redisMessage *models.RedisMessage) error {
 	log.Info(*c.requestId, "start sendRetryMessage", messageBody)
-	log.Info(*c.requestId, enums.SuccessfullyPushed)
 	return c.SendMessage(ctx, redisMessage, messageBody.Ttl)
 }
 

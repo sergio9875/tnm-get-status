@@ -23,7 +23,7 @@ func GetToken(PostURL string, wallet string, password string) (*models.TokenResp
 		Transport: tr,
 		Timeout:   40 * time.Second,
 	}
-	// Prepare request body
+
 	body := models.Auth{
 		Wallet:   wallet,
 		Password: password,

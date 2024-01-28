@@ -12,7 +12,7 @@ import (
 )
 
 func (c *Controller) InvoiceProcess(ctx context.Context, messageBody *models.IncomingRequest, redisBody *models.RedisMessage) error {
-
+	fmt.Println("Start_Invoice_Process")
 	transactionStatus, err := c.GetTransactionStatus(messageBody.TransId)
 	if err != nil {
 		log.Info(*c.requestId, "transactionStatus", err.Error())
@@ -36,7 +36,7 @@ func (c *Controller) InvoiceProcess(ctx context.Context, messageBody *models.Inc
 		return err
 	}
 
-	fmt.Println("token@@@@@@@@@@@@_Process....")
+	fmt.Println("token_	Invoice_@@@@@@@@@@@@_Process....")
 
 	responseBody := new(models.TnmBodyResponse)
 	responseBody, err = service.SendGetRequest(messageBody.MbtId, token.Data.Token, messageBody.URLQuery)
@@ -46,9 +46,9 @@ func (c *Controller) InvoiceProcess(ctx context.Context, messageBody *models.Inc
 		log.Infof(*c.requestId, "ERROR_INFO: %s", err.Error())
 		return err
 	}
-
-	c.sendSumoMessages(ctx, enums.MalawiResponse+"Invoice", responseBody)
 	fmt.Println("isPaid____##########____....", responseBody.Paid)
+	c.sendSumoMessages(ctx, enums.MalawiResponse+"Invoice", responseBody)
+
 	if responseBody.Paid == true {
 		return c.SendCallBackRequest(ctx, messageBody, responseBody.ReceiptNumber)
 	}

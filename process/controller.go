@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"malawi-getstatus/cache"
+	"malawi-getstatus/enums"
 	log "malawi-getstatus/logger"
 	"malawi-getstatus/models"
 	repo "malawi-getstatus/repository"
@@ -71,8 +72,6 @@ func (c *Controller) Process(ctx context.Context, message events.SQSMessage) err
 		return err
 	}
 
-	fmt.Println("MESSAGE BODY FROM REDIS", messageBody)
-
 	fmt.Println("counter", messageBody.Counter)
 	fmt.Println("maxRetry", messageBody.MaxRetry)
 	// update counter on redis
@@ -84,19 +83,17 @@ func (c *Controller) Process(ctx context.Context, message events.SQSMessage) err
 	// initiate the queue with value provided on terminal settings
 	c.initSqsProducer(messageBody.QueueName)
 
-	log.Infof(*c.requestId, "message body")
 	//check if counter is bigger that max retry
-
 	if utils.SafeAtoi(messageBody.Counter, 0) >= utils.SafeAtoi(messageBody.MaxRetry, 0) {
 		log.Info(*c.requestId, "break sendRetryMessage Counter Over limit ", messageBody.Counter)
 		return nil
 	}
 
-	if messageBody.IsRefund == "true" {
+	if messageBody.IsRefund == enums.IsTrue {
 		return c.RefundProcess(ctx, messageBody, redisMessage)
 	}
 
-	if messageBody.IsInvoice == "true" {
+	if messageBody.IsInvoice == enums.IsTrue {
 		return c.InvoiceProcess(ctx, messageBody, redisMessage)
 	}
 

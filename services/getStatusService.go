@@ -21,7 +21,6 @@ func SendGetRequest(transactionId string, token string, urlGetStatus string) (*m
 	if err != nil {
 		log.Fatalf(": %s", err.Error())
 	}
-	//transactionId = "1352256"
 	// Path params
 	base.Path += transactionId
 
@@ -31,7 +30,7 @@ func SendGetRequest(transactionId string, token string, urlGetStatus string) (*m
 
 	fmt.Printf("Encoded URL is %q\n", base.String())
 
-	//url3 := "http://localhost:8888/chargeError"
+	//url3 := "http://localhost:8888/chargeSuccess"
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", base.String(), nil)
@@ -48,7 +47,6 @@ func SendGetRequest(transactionId string, token string, urlGetStatus string) (*m
 	log.Printf("status Code: %d", strconv.Itoa(res.StatusCode))
 
 	rBody, err := io.ReadAll(res.Body)
-
 	if err != nil {
 		fmt.Println(err)
 	}

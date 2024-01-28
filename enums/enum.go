@@ -12,7 +12,7 @@ const (
 	Pending              = 4
 	TransactionCompleted = 1
 	IsRefund             = true
-	IsInvoice            = true
+	IsTrue               = "true"
 	MalawiResponse       = "Tnm Malawi response get status"
 	ERROR_MSG_UNMARSHL   = "Can't Unmarshal JSON From TNM Malawi"
 	SuccessfullyDesc     = "Process service request successfully."
