@@ -21,7 +21,7 @@ func SendGetRequest(transactionId string, token string, urlGetStatus string) (*m
 	if err != nil {
 		log.Fatalf(": %s", err.Error())
 	}
-	transactionId = "1352256"
+	//transactionId = "1352256"
 	// Path params
 	base.Path += transactionId
 
