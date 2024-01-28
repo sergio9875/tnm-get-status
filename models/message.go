@@ -10,6 +10,7 @@ type Message struct {
 	PaymentReference string `json:"paymentReference"`
 	QueueName        string `json:"queueName"`
 	Ttl              string `json:"ttl"`
+	Amount           string `json:"amount"`
 	MaxRetry         string `json:"maxRetry"`
 	Counter          string `json:"counter"`
 	ConsumerKey      string `json:"consumerKey" redact:"complete"`
@@ -37,21 +38,21 @@ type SumoPayload struct {
 
 type IncomingRequest struct {
 	Action          string `json:"action" validate:"required,actionTypes"`
-	URLQuery        string `json:"URLQuery,omitempty" validate:"omitempty,url"`
-	URLToken        string `json:"URLToken,omitempty" validate:"omitempty,url"`
-	CellphoneNumber string `json:"CellphoneNumber" validate:"omitempty,cellnumber"`
-	Amount          string `json:"Amount"`
+	URLQuery        string `json:"urlQuery,omitempty" validate:"omitempty,url"`
+	URLToken        string `json:"urlToken,omitempty" validate:"omitempty,url"`
+	CellphoneNumber string `json:"cellphoneNumber" validate:"omitempty,cellnumber"`
+	Amount          string `json:"amount"`
 	Ttl             string `json:"ttl"`
-	MaxRetry        string `json:"MaxRetry"`
-	Wallet          string `json:"Wallet" redact:"complete"`
-	Password        string `json:"Password" redact:"complete"`
-	TransId         string `json:"TransId"`
-	TransrId        string `json:"TransrId"`
-	MbtId           string `json:"MbtId"`
-	Description     string `json:"Description,omitempty"`
-	IsInvoice       string `json:"IsInvoice,omitempty"`
-	IsRefund        string `json:"IsRefund,omitempty"`
-	Counter         string `json:"Counter"`
+	MaxRetry        string `json:"maxRetry"`
+	Wallet          string `json:"wallet" redact:"complete"`
+	Password        string `json:"password" redact:"complete"`
+	TransId         string `json:"transId"`
+	TransrId        string `json:"transrId"`
+	MbtId           string `json:"mbtId"`
+	Description     string `json:"description,omitempty"`
+	IsInvoice       string `json:"isInvoice,omitempty"`
+	IsRefund        string `json:"isRefund,omitempty"`
+	Counter         string `json:"counter"`
 	QueueName       string `json:"queueName"`
 	CallbackUrl     string `json:"callbackUrl"`
 }
@@ -83,11 +84,9 @@ type TnmBodyResponse struct {
 	ReceiptNumber         string `json:"receipt_number,omitempty"`
 	SettledAt             string `json:"settled_at,omitempty"`
 	Paid                  bool   `json:"paid"`
-	ReversalTranscationId string `json:"reversal_transcation_id"`
+	ReversalTranscationId string `json:"reversal_transaction_id"`
 	Reversed              bool   `json:"reversed"`
 	ReversedAt            string `json:"reversed_at"`
-	StatusCode            int    `json:"statusCode"`
-	Message               string `json:"message"`
 }
 
 type TnmResponse struct {
@@ -95,6 +94,12 @@ type TnmResponse struct {
 	Errors  interface{}     `json:"errors,omitempty"`
 	Trace   interface{}     `json:"trace,omitempty"`
 	Data    TnmBodyResponse `json:"data,omitempty"`
+}
+
+type AjaxResponse struct {
+	data       []byte
+	statusCode int
+	err        error
 }
 
 type ApiResult struct {

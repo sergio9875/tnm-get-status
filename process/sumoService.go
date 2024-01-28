@@ -49,14 +49,10 @@ func (c *Controller) sendSumoMessages(ctx context.Context, message string, param
 
 // GetMessage get message from queue
 func (c *Controller) GetMessage(message string, messageData interface{}) error {
-
-	//log.Info(*c.requestId, "trying to retrieve message body from message: ", message)
 	if err := json.Unmarshal([]byte(message), &messageData); err != nil {
 		log.Error(*c.requestId, "unable to retrieve message body: ", err.Error())
 		return err
 	}
-
-	//log.Info(*c.requestId, "Successfully retrieved message: ", messageData)
 	return nil
 }
 

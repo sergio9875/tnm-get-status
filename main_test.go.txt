@@ -34,26 +34,26 @@ func TestLambdaHandler(t *testing.T) {
 				sqsEvent: events.SQSEvent{Records: []events.SQSMessage{
 					{
 						MessageId: "some Id",
-						//	Body:      `{"redisKey":"tnm_process:4981565:1352156"}`,
+						Body:      `{"redisKey":"tnm_process:4981860:1352255"}`,
 
-						Body: `{
-							"CallbackUrl": "https://cb.pgcoza.biz/tnm/mw/callback/request",
-						   "Action": "Invoice",
-							"UrlToken":"https://dev.payouts.tnmmpamba.co.mw/api/authenticate",
-							"UrlQuery":"https://dev.payouts.tnmmpamba.co.mw/api/invoices/",
-						   "QueueName": "https://sqs.eu-west-1.amazonaws.com/427246389222/tnm-malawi-get-status",
-							"Wallet": "500957",
-							"Password": "Test_Test_42",
-							"TransId": "4981618",
-						   "MbtId": "1352190",
-						   "Amount": "400",
-						   "CellphoneNumber": "265882009852",
-							"Description": "Process service request successfully.",
-						   "IsInvoice" : "true",
-						   "Ttl": "20",
-						   "Counter" : "1",
-						   "MaxRetry" : "3"
-						}`,
+						//Body: `{
+						//	"CallbackUrl": "https://cb.pgcoza.biz/tnm/mw/callback/request",
+						//   "Action": "Invoice",
+						//	"UrlToken":"https://dev.payouts.tnmmpamba.co.mw/api/authenticate",
+						//	"UrlQuery":"https://dev.payouts.tnmmpamba.co.mw/api/invoices/",
+						//   "QueueName": "https://sqs.eu-west-1.amazonaws.com/427246389222/tnm-malawi-get-status",
+						//	"Wallet": "500957",
+						//	"Password": "Test_Test_42",
+						//	"TransId": "4981618",
+						//   "MbtId": "1352190",
+						//   "Amount": "400",
+						//   "CellphoneNumber": "265882009852",
+						//	"Description": "Process service request successfully.",
+						//   "IsInvoice" : "true",
+						//   "Ttl": "20",
+						//   "Counter" : "1",
+						//   "MaxRetry" : "3"
+						//}`,
 
 						ReceiptHandle: "Handle",
 					},

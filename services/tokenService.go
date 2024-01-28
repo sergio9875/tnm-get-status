@@ -33,12 +33,13 @@ func GetToken(PostURL string, wallet string, password string) (*models.TokenResp
 		log.Fatalf("impossible to marshall token config: %s", err.Error())
 	}
 
-	url3 := "http://localhost:8888/token"
-	req, err := http.NewRequest(http.MethodPost, url3, bytes.NewReader(marshalled))
+	//url3 := "http://localhost:8888/token"
+	req, err := http.NewRequest(http.MethodPost, PostURL, bytes.NewReader(marshalled))
 	if err != nil {
 		log.Fatalf("impossible to build request: %s", err.Error())
 	}
-	// add headers
+
+	// Add Headers
 	req.Header.Set("Content-Type", "application/json")
 	res, err := client.Do(req)
 	if err != nil {
@@ -56,7 +57,6 @@ func GetToken(PostURL string, wallet string, password string) (*models.TokenResp
 	if err != nil {
 		log.Fatalf("impossible to read all body of response: %s", err.Error())
 	}
-	//log.Printf("res body: %s", string(resBody))
 
 	var tokenResponse *models.TokenResponse
 	err = json.Unmarshal(resBody, &tokenResponse)

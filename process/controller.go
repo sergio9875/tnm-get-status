@@ -2,8 +2,10 @@ package process
 
 import (
 	"context"
+	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"malawi-getstatus/cache"
+	log "malawi-getstatus/logger"
 	"malawi-getstatus/models"
 	repo "malawi-getstatus/repository"
 	"malawi-getstatus/request"
@@ -59,43 +61,36 @@ func (c *Controller) Process(ctx context.Context, message events.SQSMessage) err
 	var redisMessage = new(models.RedisMessage)
 	var err error
 
-	if err = c.GetMessage(message.Body, messageBody); err != nil {
+	if err = c.GetMessage(message.Body, redisMessage); err != nil {
+		c.sendSumoMessages(ctx, err.Error(), nil)
+		return err
+	}
+	fmt.Println("MESSAGE KEY FROM BODY", redisMessage)
+	if err = c.getCache(ctx, redisMessage.RedisKey, messageBody); err != nil {
 		c.sendSumoMessages(ctx, err.Error(), nil)
 		return err
 	}
 
-	//if err = c.GetMessage(message.Body, redisMessage); err != nil {
-	//	c.sendSumoMessages(ctx, err.Error(), nil)
-	//	return err
-	//}
-	//fmt.Println("MESSAGE KEY FROM BODY", redisMessage)
-	//if err = c.getCache(ctx, redisMessage.RedisKey, messageBody); err != nil {
-	//	c.sendSumoMessages(ctx, err.Error(), nil)
-	//	return err
-	//}
-	//
-	//fmt.Println("MESSAGE BODY FROM REDIS", messageBody)
-	//
-	//fmt.Println("counter", messageBody.Counter)
-	//fmt.Println("maxRetry", messageBody.MaxRetry)
-	//// update counter on redis
-	//if err = c.updateRedisCounter(ctx, redisMessage.RedisKey, messageBody.Counter); err != nil {
-	//	c.sendSumoMessages(ctx, err.Error(), nil)
-	//	return err
-	//}
+	fmt.Println("MESSAGE BODY FROM REDIS", messageBody)
+
+	fmt.Println("counter", messageBody.Counter)
+	fmt.Println("maxRetry", messageBody.MaxRetry)
+	// update counter on redis
+	if err = c.updateRedisCounter(ctx, redisMessage.RedisKey, messageBody.Counter); err != nil {
+		c.sendSumoMessages(ctx, err.Error(), nil)
+		return err
+	}
 
 	// initiate the queue with value provided on terminal settings
-	//c.initSqsProducer(messageBody.QueueName)
+	c.initSqsProducer(messageBody.QueueName)
 
-	//os.Exit(2)
-
-	//log.Infof(*c.requestId, "message body")
+	log.Infof(*c.requestId, "message body")
 	//check if counter is bigger that max retry
 
-	//if utils.SafeAtoi(messageBody.Counter, 0) >= utils.SafeAtoi(messageBody.MaxRetry, 0) {
-	//	log.Info(*c.requestId, "break sendRetryMessage Counter Over limit ", messageBody.Counter)
-	//	return nil
-	//}
+	if utils.SafeAtoi(messageBody.Counter, 0) >= utils.SafeAtoi(messageBody.MaxRetry, 0) {
+		log.Info(*c.requestId, "break sendRetryMessage Counter Over limit ", messageBody.Counter)
+		return nil
+	}
 
 	if messageBody.IsRefund == "true" {
 		return c.RefundProcess(ctx, messageBody, redisMessage)

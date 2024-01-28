@@ -20,7 +20,7 @@ func GetTimeStamp() string {
 }
 
 func GetPaymentCodeForRefundStatus(responseBody *models.TnmBodyResponse) int {
-	if responseBody.StatusCode == enums.StatusCode {
+	if responseBody.Reversed == true {
 		return 3
 	}
 	return 4

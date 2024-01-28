@@ -2,6 +2,8 @@ package process
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"malawi-getstatus/enums"
 	log "malawi-getstatus/logger"
 	"malawi-getstatus/models"
@@ -34,22 +36,21 @@ func (c *Controller) InvoiceProcess(ctx context.Context, messageBody *models.Inc
 		return err
 	}
 
-	//fmt.Println("Process....")
-	//fmt.Println("token@@@@@@@@@@@@", token.Data.Token)
+	fmt.Println("token@@@@@@@@@@@@_Process....")
 
-	responseBody := new(models.TnmResponse)
-	responseBody, err = c.SendGetRequest(messageBody.TransId, token.Data.Token, messageBody.URLQuery)
-	//c.sendSumoMessages(ctx, err.Error(), nil)
+	responseBody := new(models.TnmBodyResponse)
+	responseBody, err = service.SendGetRequest(messageBody.TransId, token.Data.Token, messageBody.URLQuery)
+
 	if err != nil {
+		c.sendSumoMessages(ctx, err.Error(), nil)
 		log.Infof(*c.requestId, "ERROR_INFO: %s", err.Error())
 		return err
 	}
 
 	c.sendSumoMessages(ctx, enums.MalawiResponse+"Invoice", responseBody)
-	//os.Exit(2)
 
-	if responseBody.Data.Paid == true {
-		return c.SendCallBackRequest(ctx, messageBody, responseBody.Data.ReceiptNumber)
+	if responseBody.Paid == true {
+		return c.SendCallBackRequest(ctx, messageBody, responseBody.ReceiptNumber)
 	}
 	return c.SendRetryMessage(ctx, messageBody, redisBody)
 
@@ -72,10 +73,9 @@ func (c *Controller) SendCallBackRequest(ctx context.Context, body *models.Incom
 	}
 	log.Infof(*c.requestId, "callback response", cbResponse)
 	c.sendSumoMessages(ctx, "payment gateway response", cbResponse)
-	//if cbResponse.Code != enums.Success {
-	//	//cbResponse.StatusCode = payload.RequestStatusCode
-	//	//cbResponse.Explanation = body.StatusDescription
-	//}
+	if cbResponse.Code != enums.Success {
+		_ = errors.New(fmt.Sprintf("statusCode: %v and errMsg: %v", payload.ReceiptCode, payload.ResultDescription))
+	}
 	return nil
 }
 
