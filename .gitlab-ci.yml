@@ -6,5 +6,5 @@ include:
 deploy:dev:
 
   only:
-    - dev
+    - test-branch
 
