@@ -36,7 +36,7 @@ func (c *Controller) InvoiceProcess(ctx context.Context, messageBody *models.Inc
 		return err
 	}
 
-	fmt.Println("token@@@@@@@@@@@@_Process....", token)
+	fmt.Println("token@@@@@@@@@@@@_Process....")
 
 	responseBody := new(models.TnmBodyResponse)
 	responseBody, err = service.SendGetRequest(messageBody.MbtId, token.Data.Token, messageBody.URLQuery)
@@ -48,7 +48,7 @@ func (c *Controller) InvoiceProcess(ctx context.Context, messageBody *models.Inc
 	}
 
 	c.sendSumoMessages(ctx, enums.MalawiResponse+"Invoice", responseBody)
-
+	fmt.Println("isPaid____##########____....", responseBody.Paid)
 	if responseBody.Paid == true {
 		return c.SendCallBackRequest(ctx, messageBody, responseBody.ReceiptNumber)
 	}
