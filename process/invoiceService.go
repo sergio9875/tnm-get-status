@@ -36,10 +36,10 @@ func (c *Controller) InvoiceProcess(ctx context.Context, messageBody *models.Inc
 		return err
 	}
 
-	fmt.Println("token@@@@@@@@@@@@_Process....")
+	fmt.Println("token@@@@@@@@@@@@_Process....", token)
 
 	responseBody := new(models.TnmBodyResponse)
-	responseBody, err = service.SendGetRequest(messageBody.TransId, token.Data.Token, messageBody.URLQuery)
+	responseBody, err = service.SendGetRequest(messageBody.MbtId, token.Data.Token, messageBody.URLQuery)
 
 	if err != nil {
 		c.sendSumoMessages(ctx, err.Error(), nil)
