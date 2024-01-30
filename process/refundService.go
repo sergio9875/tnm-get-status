@@ -21,7 +21,7 @@ func (c *Controller) RefundProcess(ctx context.Context, messageBody *models.Inco
 
 	fmt.Println("token@@@@@@@@@@@@_Refund")
 	responseBody := new(models.TnmBodyResponse)
-	responseBody, err = service.SendGetRequest(messageBody.TransId, token.Data.Token, messageBody.URLQuery)
+	responseBody, err = service.SendGetRequest(messageBody.MbtId, token.Data.Token, messageBody.URLQuery)
 
 	if err != nil {
 		c.sendSumoMessages(ctx, err.Error(), nil)
