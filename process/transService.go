@@ -4,14 +4,14 @@ import (
 	"strconv"
 )
 
-func (c *Controller) GetTransactionStatus(transId string) (int, error) {
-	TRANSID, err := strconv.ParseInt(transId, 10, 64)
+func (c *Controller) GetMbtTransStatus(mbtId string) (int, error) {
+	MbtID, err := strconv.ParseInt(mbtId, 10, 64)
 	if err != nil {
 		return -1, err
 	}
-	transSettings, err := (*c.repository).GetTransStatus(int(TRANSID))
+	transSettings, err := (*c.repository).GetMbtStatus(int(MbtID))
 	if err != nil {
 		return -1, err
 	}
-	return transSettings.TransStatus, nil
+	return transSettings.MbtStatus, nil
 }

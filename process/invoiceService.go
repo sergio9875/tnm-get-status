@@ -13,23 +13,19 @@ import (
 
 func (c *Controller) InvoiceProcess(ctx context.Context, messageBody *models.IncomingRequest, redisBody *models.RedisMessage) error {
 	fmt.Println("Start_Invoice_Process")
-	transactionStatus, err := c.GetTransactionStatus(messageBody.TransId)
+	mbtStatus, err := c.GetMbtTransStatus(messageBody.MbtId)
 	if err != nil {
 		log.Info(*c.requestId, "transactionStatus", err.Error())
 		c.sendSumoMessages(ctx, err.Error(), nil)
 		return err
 	}
-	log.Info("transactionStatus", transactionStatus)
-	if transactionStatus == enums.TransactionCompleted {
+
+	log.Info("transactionStatus", mbtStatus)
+	if mbtStatus != enums.Pending {
 		log.Infof(*c.requestId, "stopping function, callback already received, transaction completed")
-		return err
+		return nil
 	}
-
-	if transactionStatus != enums.Pending {
-		log.Info(*c.requestId, "Status not Pending ", transactionStatus)
-		return err
-	}
-
+	
 	token, err := service.GetToken(messageBody.URLToken, messageBody.Wallet, messageBody.Password)
 	if err != nil {
 		log.Infof("ERR_MSG: %s\n", err.Error())

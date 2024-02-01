@@ -133,11 +133,6 @@ type TokenResponse struct {
 	Data    TokenRes    `json:"data,omitempty"`
 }
 
-type ResponseError struct {
-	StatusCode int
-	Err        error
-}
-
 type Auth struct {
 	Wallet   string `json:"wallet" required:"wallet"`
 	Password string `json:"password" required:"password"`

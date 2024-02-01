@@ -7,3 +7,7 @@ type TransrEntity struct {
 type TransEntity struct {
 	TransStatus int
 }
+
+type MbtEntity struct {
+	MbtStatus int
+}

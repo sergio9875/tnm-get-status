@@ -30,7 +30,7 @@ func (c *Controller) RefundProcess(ctx context.Context, messageBody *models.Inco
 	}
 	c.sendSumoMessages(ctx, enums.MalawiResponse+"Refund", responseBody)
 
-	fmt.Println("isDataReversed", responseBody.ReversedAt)
+	fmt.Println("isDataReversed", responseBody.Reversed)
 	if responseBody.Reversed == enums.IsRefund {
 		return c.UpdateRefund(ctx, responseBody, messageBody)
 	}
@@ -70,7 +70,6 @@ func (c *Controller) UpdateRefund(ctx context.Context, responseBody *models.TnmB
 		return err
 	}
 	log.Info(*c.requestId, "Update Trans ", messageBody.TransId)
-	log.Info(*c.requestId, "Update Transr ", messageBody.TransrId)
 	c.sendSumoMessages(ctx, enums.SuccessfullyUpdate, messageBody.TransId)
 	return nil
 }

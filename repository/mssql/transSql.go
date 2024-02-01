@@ -30,13 +30,13 @@ func (r *repository) UpdateTransRefund(transId int, amount float64, activeStatus
 	return nil
 }
 
-func (r *repository) GetTransStatus(transId int) (*models.TransEntity, error) {
+func (r *repository) GetMbtStatus(mbtId int) (*models.MbtEntity, error) {
 
-	transStatus := new(models.TransEntity)
+	transStatus := new(models.MbtEntity)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	const query = `SELECT TRANStransstid FROM africainv.dbo.TRANS WHERE TRANSID = @transId`
-	err := r.db.QueryRowContext(ctx, query, sql.NamedArg{Name: "transId", Value: transId}).Scan(&transStatus.TransStatus)
+	const query = `SELECT MBTmbtstID FROM africainv.dbo.MBT where MBTid = @mbtId`
+	err := r.db.QueryRowContext(ctx, query, sql.NamedArg{Name: "mbtId", Value: mbtId}).Scan(&transStatus.MbtStatus)
 	if err != nil {
 		return nil, err
 	}
